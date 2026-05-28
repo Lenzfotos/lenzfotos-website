@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Lenz Fotos — Book a Session</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+/* ── SETUP NOTICE (remove after EmailJS config) ── */
+.setup-banner{background:#1a1a1a;color:#c9a84c;text-align:center;padding:.6rem 1rem;font-size:12px;font-weight:500;letter-spacing:.03em;}
+.setup-banner a{color:#e8d5a3;text-decoration:underline;}
+
+:root{
+  --black:#080807;--white:#faf9f5;--cream:#f2ede0;--cream2:#e8e0cc;
+  --gold:#c9a84c;--gold2:#e8d5a3;--gold3:#a07830;
+  --text:#1c1a16;--muted:#7a7268;--border:rgba(0,0,0,0.10);
+  --r:14px;--font-display:'Cormorant Garamond',Georgia,serif;
+  --font-body:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--white);color:var(--text);overflow-x:hidden;}
+
+.prog{position:sticky;top:0;z-index:200;background:rgba(250,249,245,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.7rem 1.5rem;display:flex;align-items:center;gap:8px;}
+.prog-steps{display:flex;align-items:center;gap:4px;flex:1;overflow-x:auto;}
+.ps{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap;padding:2px 0;}
+.ps.done{color:var(--gold3);}
+.ps.active{color:var(--text);font-weight:600;}
+.pdot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s;}
+.ps.done .pdot{background:var(--gold);}
+.ps.active .pdot{background:var(--text);}
+.pdiv{width:20px;height:1px;background:var(--border);}
+@media(max-width:480px){.ps span{display:none;}.pdiv{width:10px;}}
+
+.hero{min-height:100svh;background:var(--black);color:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem 1.5rem;position:relative;overflow:hidden;}
+.hero-grain{position:absolute;inset:0;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.15) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.hero-eye{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1.75rem;opacity:0;animation:fu .9s .1s ease forwards;}
+.hero h1{font-family:var(--font-display);font-size:clamp(3.2rem,9vw,7rem);font-weight:300;line-height:1.02;margin-bottom:1.75rem;opacity:0;animation:fu .9s .3s ease forwards;}
+.hero h1 em{font-style:italic;color:var(--gold);}
+.hero-sub{font-size:clamp(.9rem,1.8vw,1.1rem);font-weight:300;color:rgba(250,249,245,.6);max-width:460px;line-height:1.75;margin-bottom:2.5rem;opacity:0;animation:fu .9s .5s ease forwards;}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--black);font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:15px 36px;border-radius:100px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;opacity:0;animation:fu .9s .7s ease forwards;}
+.hero-cta:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(201,168,76,.4);}
+.scroll-lbl{position:absolute;bottom:1.75rem;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(250,249,245,.3);animation:pulse 2.5s infinite;}
+@keyframes fu{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:.3;}50%{opacity:.7;}}
+
+section{padding:5rem 1.5rem;}
+.sec-eye{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.9rem;}
+.sec-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);font-weight:300;line-height:1.12;margin-bottom:.75rem;}
+.sec-sub{font-size:.95rem;color:var(--muted);max-width:500px;line-height:1.7;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.vis{opacity:1;transform:translateY(0);}
+
+#services{background:var(--cream);}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;margin-top:2.5rem;}
+.svc-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.svc-card::after{content:'';position:absolute;inset:0;border-radius:var(--r);border:2px solid var(--gold);opacity:0;transition:opacity .25s;}
+.svc-card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.08);}
+.svc-card.sel{transform:translateY(-3px);box-shadow:0 14px 36px rgba(201,168,76,.18);}
+.svc-card.sel::after{opacity:1;}
+.svc-icon{width:44px;height:44px;border-radius:10px;background:var(--black);display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem;font-size:20px;}
+.svc-name{font-family:var(--font-display);font-size:1.2rem;font-weight:400;margin-bottom:.4rem;}
+.svc-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:1rem;}
+.svc-from{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:.05em;}
+.svc-chk{position:absolute;top:1.1rem;right:1.1rem;width:22px;height:22px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .25s;font-size:11px;color:var(--black);font-weight:700;}
+.svc-card.sel .svc-chk{opacity:1;transform:scale(1);}
+
+#packages{background:var(--white);}
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.1rem;margin-top:2.5rem;}
+.pkg-card{border:1.5px solid var(--border);border-radius:var(--r);padding:1.75rem;cursor:pointer;transition:all .25s;position:relative;}
+.pkg-card.dark{background:var(--black);color:var(--white);border-color:var(--black);}
+.pkg-card.sel-pkg{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold);}
+.pkg-bdg{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:var(--gold);color:var(--black);font-weight:600;margin-bottom:.85rem;}
+.pkg-name{font-family:var(--font-display);font-size:1.2rem;margin-bottom:.3rem;}
+.pkg-price{font-size:1.9rem;font-weight:500;margin-bottom:.2rem;}
+.pkg-desc{font-size:12px;opacity:.6;line-height:1.55;margin-bottom:1rem;}
+.pkg-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.pkg-list li{font-size:12px;display:flex;align-items:flex-start;gap:7px;opacity:.8;}
+.pkg-list li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0;}
+.pkg-card.dark .pkg-list li::before{color:var(--gold2);}
+.pkg-btn{width:100%;margin-top:1.25rem;padding:11px;border-radius:100px;border:1.5px solid currentColor;background:transparent;font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:all .2s;color:inherit;}
+.pkg-card.dark .pkg-btn{background:var(--gold);color:var(--black);border-color:var(--gold);}
+.pkg-btn:hover{background:var(--gold);color:var(--black);border-color:var(--gold);}
+
+/* ── SELECTED PACKAGE BANNER ── */
+.pkg-selected-banner{display:none;background:var(--black);color:var(--white);border-radius:var(--r);padding:1.25rem 1.5rem;margin-top:1.5rem;align-items:center;gap:12px;flex-wrap:wrap;}
+.pkg-selected-banner.show{display:flex;}
+.psb-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.psb-name{font-family:var(--font-display);font-size:1.1rem;font-weight:400;}
+.psb-price{font-size:1.5rem;font-weight:600;color:var(--gold);margin-left:auto;}
+.psb-change{font-size:11px;color:rgba(250,249,245,.4);cursor:pointer;text-decoration:underline;margin-left:8px;}
+.psb-change:hover{color:var(--gold);}
+
+#builder{background:var(--cream);}
+.qb-wrap{max-width:700px;margin:2.5rem auto 0;}
+
+/* ── PACKAGE SYNC INDICATOR ── */
+.qb-sync{display:flex;align-items:center;gap:8px;background:var(--black);color:var(--gold);font-size:12px;font-weight:500;padding:.65rem 1rem;border-radius:10px;margin-bottom:1rem;}
+.qb-sync.empty{background:var(--cream2);color:var(--muted);}
+
+.qb-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;margin-bottom:1rem;}
+.qb-label{font-size:12px;color:var(--muted);margin-bottom:.4rem;display:block;}
+.qb-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+@media(max-width:560px){.qb-grid{grid-template-columns:1fr;}}
+.qb-val{font-size:14px;font-weight:600;margin-top:3px;}
+.qb-checks{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;}
+.qb-check{font-size:12px;display:flex;align-items:center;gap:5px;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:100px;transition:all .2s;user-select:none;}
+.qb-check:has(input:checked){background:var(--black);color:var(--white);border-color:var(--black);}
+.qb-check input{display:none;}
+.qb-result{background:var(--cream);border-radius:10px;padding:1.25rem;}
+.qb-rows{display:flex;flex-direction:column;gap:4px;font-size:13px;margin-bottom:1rem;}
+.qbr{display:flex;justify-content:space-between;color:var(--muted);gap:8px;}
+.qbr.highlight{color:var(--gold3);font-weight:500;}
+.qbr.disc{color:#2a7a4a;font-weight:500;}
+.qbr.rush{color:#c0392b;font-weight:500;}
+.qb-total{border-top:1px solid var(--border);padding-top:.9rem;display:flex;justify-content:space-between;align-items:baseline;}
+.qb-total-lbl{font-size:13px;color:var(--muted);}
+.qb-total-num{font-size:2rem;font-weight:600;}
+.qb-note{font-size:11px;color:var(--muted);margin-top:.5rem;}
+
+#questionnaire{background:var(--white);}
+.q-form{max-width:660px;margin:2.5rem auto 0;display:flex;flex-direction:column;gap:1.25rem;}
+.q-group{display:flex;flex-direction:column;gap:.4rem;}
+.q-lbl{font-size:12px;font-weight:600;letter-spacing:.03em;}
+.q-lbl .req{color:var(--gold);}
+.q-input,.q-textarea,.q-select{font-family:var(--font-body);font-size:14px;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);color:var(--text);outline:none;transition:border-color .2s,background .2s;width:100%;-webkit-appearance:none;}
+.q-input:focus,.q-textarea:focus,.q-select:focus{border-color:var(--gold);background:var(--white);}
+.q-textarea{resize:vertical;min-height:90px;}
+.q-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:540px){.q-row{grid-template-columns:1fr;}}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{padding:7px 14px;border:1.5px solid var(--border);border-radius:100px;font-size:12px;background:var(--cream);cursor:pointer;transition:all .18s;user-select:none;}
+.chip.on{background:var(--black);color:var(--white);border-color:var(--black);}
+
+/* ── SELECTED SUMMARY IN FORM ── */
+.form-pkg-summary{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;font-size:13px;}
+.fps-head{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;}
+.fps-row{display:flex;justify-content:space-between;color:var(--muted);}
+.fps-row.total{color:var(--text);font-weight:600;border-top:1px solid var(--border);padding-top:.5rem;margin-top:.5rem;}
+
+.sub-btn{display:inline-flex;align-items:center;gap:9px;background:var(--black);color:var(--white);font-family:var(--font-body);font-size:14px;font-weight:600;padding:16px 38px;border-radius:100px;border:none;cursor:pointer;transition:all .2s;align-self:flex-start;}
+.sub-btn:hover{background:var(--gold);color:var(--black);transform:translateY(-2px);}
+.sub-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.sub-btn.loading::after{content:'';width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;margin-left:4px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── CONFIRMATION SCREEN ── */
+.confirm-screen{display:none;max-width:600px;margin:0 auto;text-align:center;}
+.confirm-screen.show{display:block;}
+.confirm-icon{width:72px;height:72px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.5rem;}
+.confirm-title{font-family:var(--font-display);font-size:2.2rem;font-weight:300;margin-bottom:.75rem;}
+.confirm-sub{font-size:.95rem;color:var(--muted);line-height:1.7;max-width:460px;margin:0 auto 2rem;}
+.confirm-card{background:var(--cream);border-radius:var(--r);padding:1.5rem;text-align:left;margin-bottom:1.5rem;}
+.cc-head{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.85rem;font-weight:600;}
+.cc-row{display:flex;gap:8px;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:13px;}
+.cc-row:last-child{border-bottom:none;}
+.cc-key{color:var(--muted);min-width:120px;flex-shrink:0;}
+.cc-val{color:var(--text);font-weight:500;}
+.cal-btn{display:inline-flex;align-items:center;gap:8px;background:var(--black);color:var(--white);padding:14px 28px;border-radius:100px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;margin:0 6px 12px;}
+.cal-btn:hover{background:var(--gold);color:var(--black);}
+.cal-btn.outline{background:transparent;color:var(--text);border:1.5px solid var(--border);}
+.cal-btn.outline:hover{background:var(--cream);border-color:var(--text);}
+.confirm-note{font-size:12px;color:var(--muted);line-height:1.7;margin-top:1rem;}
+.confirm-note strong{color:var(--text);}
+
+/* ── ERROR MSG ── */
+.err-msg{background:#fff0f0;border:1px solid #fca5a5;border-radius:8px;padding:.85rem 1rem;font-size:13px;color:#c0392b;display:none;margin-top:.75rem;}
+.err-msg.show{display:block;}
+
+footer{background:var(--black);color:rgba(250,249,245,.4);text-align:center;padding:1.75rem;font-size:11px;letter-spacing:.04em;}
+footer a{color:var(--gold);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<!-- SETUP NOTICE — remove after EmailJS is configured -->
+<div class="setup-banner" id="setupBanner">
+  ⚙️ <strong>Setup required:</strong> Add your EmailJS credentials below to enable email sending.
+  <a href="#" onclick="document.getElementById('setupBanner').style.display='none';return false;">Dismiss</a>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog" id="prog">
+  <div class="prog-steps">
+    <div class="ps active" id="p1"><div class="pdot"></div><span>Service</span></div>
+    <div class="pdiv"></div>
+    <div class="ps" id="p2"><div class="pdot"></div><span>Package</span></div>
+    <div class="pdiv"></div>
+    <div class="ps" id="p3"><div class="pdot"></div><span>Quote</span></div>
+    <div class="pdiv"></div>
+    <div class="ps" id="p4"><div class="pdot"></div><span>Your details</span></div>
+    <div class="pdiv"></div>
+    <div class="ps" id="p5"><div class="pdot"></div><span>Confirmed ✓</span></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grain"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-eye">Pomona · Inland Empire · Southern California</div>
+  <h1>Every moment<br>deserves to be<br><em>remembered.</em></h1>
+  <p class="hero-sub">Photography &amp; videography for events, sports, weddings, brands, graduations, and beyond.</p>
+  <a href="#services" class="hero-cta">Get started ↓</a>
+  <div class="scroll-lbl">Scroll to begin</div>
+</section>
+
+<!-- STEP 1 — SERVICE -->
+<section id="services">
+  <div class="sec-eye reveal">Step 01 — Choose your service</div>
+  <h2 class="sec-title reveal">What are we<br>capturing together?</h2>
+  <p class="sec-sub reveal">Select the service that fits your vision and we'll load the right packages instantly.</p>
+  <div class="svc-grid" id="svcGrid">
+    <div class="svc-card reveal" onclick="pickSvc(this,'events')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🎉</div><div class="svc-name">Events &amp; Conferences</div><div class="svc-desc">Corporate events, galas, summits, school events, large multi-day productions.</div><div class="svc-from">Starting at $450</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'weddings')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">💍</div><div class="svc-name">Weddings</div><div class="svc-desc">Ceremony coverage, highlight films, engagement sessions, and full-day packages.</div><div class="svc-from">Starting at $1,200</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'sports')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🏆</div><div class="svc-name">Sports Coverage</div><div class="svc-desc">Game day, athlete spotlights, team media days, and recruiting reels.</div><div class="svc-from">Starting at $80</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'commercial')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🏢</div><div class="svc-name">Commercial &amp; Brand</div><div class="svc-desc">Warehouse, facility, employee content, headshots, and brand highlight videos.</div><div class="svc-from">Starting at $500</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'graduation')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🎓</div><div class="svc-name">Graduation &amp; Portraits</div><div class="svc-desc">Ceremony coverage, mini sessions, senior portraits, and group grad sessions.</div><div class="svc-from">Starting at $175</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'realestate')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🏠</div><div class="svc-name">Real Estate</div><div class="svc-desc">Interior, exterior, drone aerials, Airbnb shoots, and video walkthroughs.</div><div class="svc-from">Starting at $270</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'workshop')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">📸</div><div class="svc-name">Workshops</div><div class="svc-desc">Photography &amp; content creation workshops for schools, businesses, and nonprofits.</div><div class="svc-from">Starting at $700</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'video')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🎬</div><div class="svc-name">Video Editing Only</div><div class="svc-desc">Hero videos, brand reels, highlight films, and social content from your footage.</div><div class="svc-from">Starting at $500</div></div>
+  </div>
+</section>
+
+<!-- STEP 2 — PACKAGES -->
+<section id="packages">
+  <div class="sec-eye reveal">Step 02 — Select your package</div>
+  <h2 class="sec-title reveal">Choose your package</h2>
+  <p class="sec-sub reveal">Transparent pricing, no surprises. Click a package to pre-fill the quote builder below.</p>
+  <div class="pkg-grid reveal" id="pkgGrid"></div>
+  <div class="pkg-selected-banner reveal" id="pkgBanner">
+    <div>
+      <div class="psb-label">Selected package</div>
+      <div class="psb-name" id="psb-name">—</div>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:4px;margin-left:auto;">
+      <div class="psb-price" id="psb-price">—</div>
+      <span class="psb-change" onclick="clearPkg()">Change</span>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3 — QUOTE BUILDER -->
+<section id="builder">
+  <div class="sec-eye reveal">Step 03 — Build your quote</div>
+  <h2 class="sec-title reveal">Customize &amp; price<br>your session</h2>
+  <p class="sec-sub reveal">Adjust the sliders and add-ons. Your estimate updates live and carries into the form below.</p>
+  <div class="qb-wrap reveal">
+    <div class="qb-sync empty" id="qbSync">
+      💡 Select a package above to auto-fill the calculator
+    </div>
+    <div class="qb-card">
+      <div class="qb-grid">
+        <div><label class="qb-label">Coverage hours</label><input type="range" min="1" max="16" value="6" step="1" id="qbHrs" oninput="qbCalc()"><div class="qb-val" id="qbHrsOut">6 hrs</div></div>
+        <div><label class="qb-label">Number of days</label><input type="range" min="1" max="5" value="1" step="1" id="qbDays" oninput="qbCalc()"><div class="qb-val" id="qbDaysOut">1 day</div></div>
+        <div><label class="qb-label">Helpers / second shooters</label><input type="range" min="0" max="4" value="0" step="1" id="qbHelp" oninput="qbCalc()"><div class="qb-val" id="qbHelpOut">None</div></div>
+        <div><label class="qb-label">Social media reels</label><input type="range" min="0" max="12" value="0" step="1" id="qbReels" oninput="qbCalc()"><div class="qb-val" id="qbReelsOut">None</div></div>
+      </div>
+      <div class="qb-checks">
+        <label class="qb-check"><input type="checkbox" id="qbPhoto" checked onchange="qbCalc()"> Photography</label>
+        <label class="qb-check"><input type="checkbox" id="qbVideo" checked onchange="qbCalc()"> Videography</label>
+        <label class="qb-check"><input type="checkbox" id="qbDrone" onchange="qbCalc()"> Drone</label>
+        <label class="qb-check"><input type="checkbox" id="qbLight" onchange="qbCalc()"> Multi-light setup</label>
+        <label class="qb-check"><input type="checkbox" id="qbIntv" onchange="qbCalc()"> Interview rig + mics</label>
+        <label class="qb-check"><input type="checkbox" id="qbRecap" onchange="qbCalc()"> Highlight video</label>
+        <label class="qb-check"><input type="checkbox" id="qbSameday" onchange="qbCalc()"> Same-day teaser</label>
+        <label class="qb-check"><input type="checkbox" id="qbSetup" onchange="qbCalc()"> Setup / site visit</label>
+        <label class="qb-check"><input type="checkbox" id="qbRush" onchange="qbCalc()"> Rush delivery (48 hrs)</label>
+      </div>
+      <div class="qb-result">
+        <div class="qb-label" style="margin-bottom:.6rem;">Live estimate breakdown</div>
+        <div class="qb-rows" id="qbRows"></div>
+        <div class="qb-total"><div class="qb-total-lbl">Estimated total</div><div class="qb-total-num" id="qbTotal">$0</div></div>
+        <div class="qb-note" id="qbNote"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 4 — INTAKE FORM -->
+<section id="questionnaire">
+  <div class="sec-eye reveal">Step 04 — Your details</div>
+  <h2 class="sec-title reveal">Tell us about<br>your vision</h2>
+  <p class="sec-sub reveal">Fill this out and we'll send you a confirmation with everything. No call required — we'll reach out within 24 hrs.</p>
+
+  <form class="q-form reveal" id="qForm" onsubmit="submitForm(event)" novalidate>
+
+    <!-- Package summary in form -->
+    <div class="form-pkg-summary" id="formPkgSummary" style="display:none;">
+      <div class="fps-head">Your selected package</div>
+      <div class="fps-row"><span class="cc-key">Service</span><span id="fps-svc">—</span></div>
+      <div class="fps-row"><span class="cc-key">Package</span><span id="fps-pkg">—</span></div>
+      <div class="fps-row total"><span class="cc-key">Estimated total</span><span id="fps-total">—</span></div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-group"><label class="q-lbl">First name <span class="req">*</span></label><input class="q-input" type="text" id="f-fname" placeholder="Your first name" required></div>
+      <div class="q-group"><label class="q-lbl">Last name <span class="req">*</span></label><input class="q-input" type="text" id="f-lname" placeholder="Your last name" required></div>
+    </div>
+    <div class="q-row">
+      <div class="q-group"><label class="q-lbl">Email <span class="req">*</span></label><input class="q-input" type="email" id="f-email" placeholder="your@email.com" required></div>
+      <div class="q-group"><label class="q-lbl">Phone</label><input class="q-input" type="tel" id="f-phone" placeholder="(555) 000-0000"></div>
+    </div>
+    <div class="q-group"><label class="q-lbl">Event / session date <span class="req">*</span></label><input class="q-input" type="text" id="f-date" placeholder="e.g. June 15, 2026 or Summer 2026" required></div>
+    <div class="q-group"><label class="q-lbl">Location or venue</label><input class="q-input" type="text" id="f-location" placeholder="City, venue name, or address"></div>
+    <div class="q-group" id="dq1"></div>
+    <div class="q-group" id="dq2"></div>
+    <div class="q-group">
+      <label class="q-lbl">Deliverables that matter most</label>
+      <div class="chips" id="chips-deliverables">
+        <div class="chip" onclick="tog(this)">Edited photos</div>
+        <div class="chip" onclick="tog(this)">Highlight video</div>
+        <div class="chip" onclick="tog(this)">Social media reels</div>
+        <div class="chip" onclick="tog(this)">Drone footage</div>
+        <div class="chip" onclick="tog(this)">Same-day sneak peek</div>
+        <div class="chip" onclick="tog(this)">Raw files</div>
+      </div>
+    </div>
+    <div class="q-group">
+      <label class="q-lbl">Budget range</label>
+      <select class="q-select" id="f-budget">
+        <option value="">Select a range</option>
+        <option>Under $500</option>
+        <option>$500–$1,000</option>
+        <option>$1,000–$2,000</option>
+        <option>$2,000–$3,500</option>
+        <option>$3,500–$5,000</option>
+        <option>$5,000+</option>
+        <option>Flexible / open to packages</option>
+      </select>
+    </div>
+    <div class="q-group"><label class="q-lbl">Describe your event or vision <span class="req">*</span></label><textarea class="q-textarea" id="f-description" placeholder="Tell me about the event, what you're hoping to capture, any must-have moments, and anything else I should know..." required></textarea></div>
+    <div class="q-group">
+      <label class="q-lbl">How did you hear about Lenz Fotos?</label>
+      <div class="chips" id="chips-source">
+        <div class="chip" onclick="tog(this)">Instagram</div>
+        <div class="chip" onclick="tog(this)">Google</div>
+        <div class="chip" onclick="tog(this)">Referral</div>
+        <div class="chip" onclick="tog(this)">Seen my work</div>
+        <div class="chip" onclick="tog(this)">Website</div>
+        <div class="chip" onclick="tog(this)">Other</div>
+      </div>
+    </div>
+
+    <div class="err-msg" id="errMsg">Something went wrong sending your inquiry. Please email us directly at <strong>contact@lenzfotos.com</strong></div>
+    <button type="submit" class="sub-btn" id="subBtn">Send my inquiry →</button>
+    <p style="font-size:11px;color:var(--muted);margin-top:.5rem;">You'll receive a confirmation email immediately. We'll follow up within 24 hours.</p>
+  </form>
+
+  <!-- CONFIRMATION SCREEN -->
+  <div class="confirm-screen" id="confirmScreen">
+    <div class="confirm-icon">✓</div>
+    <h2 class="confirm-title">You're all set!</h2>
+    <p class="confirm-sub">Your inquiry has been sent to Lenz Fotos and a confirmation has been sent to your email. We'll be in touch within 24 hours to discuss your vision.</p>
+
+    <div class="confirm-card">
+      <div class="cc-head">Your inquiry summary</div>
+      <div class="cc-row"><span class="cc-key">Name</span><span class="cc-val" id="cc-name">—</span></div>
+      <div class="cc-row"><span class="cc-key">Email</span><span class="cc-val" id="cc-email">—</span></div>
+      <div class="cc-row"><span class="cc-key">Service</span><span class="cc-val" id="cc-service">—</span></div>
+      <div class="cc-row"><span class="cc-key">Package</span><span class="cc-val" id="cc-package">—</span></div>
+      <div class="cc-row"><span class="cc-key">Date</span><span class="cc-val" id="cc-date">—</span></div>
+      <div class="cc-row"><span class="cc-key">Location</span><span class="cc-val" id="cc-location">—</span></div>
+      <div class="cc-row"><span class="cc-key">Estimate</span><span class="cc-val" id="cc-estimate">—</span></div>
+    </div>
+
+    <p style="font-size:.95rem;color:var(--muted);margin-bottom:1.25rem;">Want to grab a time on the calendar now?</p>
+    <div>
+      <a id="calLink" href="https://calendar.app.google/jikDaNfukcaE9cHH7" target="_blank" class="cal-btn">📅 Book a discovery call</a>
+      <a href="https://www.lenzfotos.com" target="_blank" class="cal-btn outline">View portfolio</a>
+    </div>
+    <p class="confirm-note">A copy of this inquiry has been sent to <strong id="cc-email2">your email</strong> and to the Lenz Fotos team. Check your spam folder if you don't see it within a few minutes.</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Lenz Fotos · Pomona, CA · <a href="https://www.lenzfotos.com">lenzfotos.com</a> · <a href="https://www.instagram.com/lenzfotos">@lenzfotos</a> · <a href="mailto:contact@lenzfotos.com">contact@lenzfotos.com</a></p>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   ██████████ EMAILJS CONFIG — FILL THESE IN ██████████
+   Steps:
+   1. Go to emailjs.com → sign up free
+   2. Add Email Service (Gmail) → copy Service ID
+   3. Create two email templates (see comments below)
+   4. Copy Public Key from Account → API Keys
+   Fill in the 4 values below then delete the setup banner
+   ═══════════════════════════════════════════════════════ */
+const EJS = {
+  publicKey:      'YOUR_PUBLIC_KEY',       // emailjs.com → Account → API Keys
+  serviceId:      'YOUR_SERVICE_ID',       // emailjs.com → Email Services
+  templateOwner:  'YOUR_OWNER_TEMPLATE',   // Template that emails YOU (contact@lenzfotos.com)
+  templateClient: 'YOUR_CLIENT_TEMPLATE',  // Template that emails the CLIENT
+};
+/* ═══════════════════════════════════════════════════════
+   OWNER TEMPLATE variables to use in EmailJS dashboard:
+   {{client_name}} {{client_email}} {{client_phone}}
+   {{service}} {{package}} {{package_price}}
+   {{event_date}} {{event_location}} {{description}}
+   {{deliverables}} {{budget}} {{source}}
+   {{estimate}} {{builder_breakdown}}
+
+   CLIENT TEMPLATE variables:
+   {{client_name}} {{service}} {{package}}
+   {{event_date}} {{event_location}} {{estimate}}
+   {{description}}
+   ═══════════════════════════════════════════════════════ */
+
+emailjs.init({ publicKey: EJS.publicKey });
+
+/* ── PACKAGE DATA ── */
+const PKGS={
+  events:[
+    {n:'Photography bundle',p:'$450',base:450,hrs:2,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'2 hrs · photos only',i:['2 hrs coverage','40–60 edited photos','Standard editing','Online gallery · +$150/hr extra'],dark:false,bdg:''},
+    {n:'Videography bundle',p:'$550',base:550,hrs:2,days:1,help:0,reels:0,photo:false,video:true,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'2 hrs · video only',i:['2 hrs coverage','7–15 color-graded clips','Standard editing','Online delivery · +$175/hr extra'],dark:false,bdg:''},
+    {n:'Trifecta bundle',p:'$900',base:900,hrs:2,days:1,help:0,reels:0,photo:true,video:true,drone:true,light:false,intv:false,recap:false,sameday:false,setup:false,d:'2 hrs · photo + video + drone',i:['40–70 edited photos','4–8 color-graded 4K clips','Standard editing','+$300/hr extra'],dark:false,bdg:'Best value'},
+    {n:'Large event standard',p:'$3,200',base:3200,hrs:8,days:1,help:2,reels:6,photo:true,video:true,drone:false,light:true,intv:true,recap:true,sameday:false,setup:false,d:'8 hrs · full crew + social',i:['8 hrs photo + video','200–300 edited photos','5–8 min highlight video','2 helpers + multi-light rig','6 social reels + AI recap'],dark:true,bdg:'Most recommended'},
+    {n:'Large event premium',p:'$4,800+',base:4800,hrs:10,days:1,help:3,reels:10,photo:true,video:true,drone:true,light:true,intv:true,recap:true,sameday:true,setup:true,d:'10+ hrs · full production',i:['10+ hrs full day','300–400+ photos','8–12 min cinematic recap','3 helpers + drone','Full lighting rig','10 reels + same-day teaser'],dark:false,bdg:''},
+    {n:'Multi-day (per day)',p:'$1,200/day',base:1200,hrs:8,days:2,help:1,reels:3,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:false,setup:true,d:'Day rate + setup fee $300',i:['Up to 8 hrs/day','Photo + video · editing included','Helper day rate: $600/day','3-day: 10% off · 5+: 20% off'],dark:false,bdg:''},
+  ],
+  weddings:[
+    {n:'Ceremony essentials',p:'$1,800',base:1800,hrs:5,days:1,help:0,reels:0,photo:false,video:true,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'Video only · 4–5 hrs',i:['4–5 hrs ceremony + reception','3–5 min highlight film','Full ceremony edit','Color grade + licensed music','1 revision round'],dark:false,bdg:''},
+    {n:'Full day standard',p:'$2,800',base:2800,hrs:8,days:1,help:0,reels:3,photo:true,video:true,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'Photo + video · 8 hrs',i:['8 hrs photo + video','150–200 edited photos','5–7 min highlight film','3 vertical social reels','2 revision rounds'],dark:true,bdg:'Most popular'},
+    {n:'Full story premium',p:'$3,800',base:3800,hrs:10,days:1,help:0,reels:6,photo:true,video:true,drone:true,light:false,intv:false,recap:true,sameday:true,setup:false,d:'Photo + video + drone · 10 hrs',i:['10 hrs full coverage','200–250 edited photos','8–10 min cinematic film','Drone · 6 social reels','Same-day sneak peek + raw files'],dark:false,bdg:''},
+    {n:'Edit-only highlight film',p:'$1,200',base:1200,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'From your existing footage',i:['Up to 20 hrs footage review','5–7 min highlight film','Color grade + licensed music','Titles + transitions · 1 revision'],dark:false,bdg:''},
+    {n:'Engagement session',p:'$350',base:350,hrs:1,days:1,help:0,reels:1,photo:true,video:true,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'1 hr · photo + video',i:['1 hr photo + video session','30–50 edited photos','Short social reel','Online gallery delivery'],dark:false,bdg:'Add-on'},
+  ],
+  sports:[
+    {n:'Athlete spotlight combo',p:'$150',base:150,hrs:1,days:1,help:0,reels:1,photo:true,video:true,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Photos + reel for 1 athlete',i:['8–16 action photos','15–30s highlight reel (vertical)','Social-ready · 48hr delivery'],dark:false,bdg:''},
+    {n:'Game day pro',p:'$650',base:650,hrs:3,days:1,help:0,reels:1,photo:true,video:true,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'3 hrs · photos + highlight',i:['3 hrs coverage','60–80 edited photos','30–60s highlight video','Social reels available'],dark:true,bdg:'Most popular'},
+    {n:'School photo + video',p:'$900',base:900,hrs:3,days:1,help:0,reels:3,photo:true,video:true,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'3 hrs · full combo',i:['50–60 edited photos','3–5 min highlight video','Warmup coverage +$150','Drone add-on available'],dark:false,bdg:'Best value'},
+    {n:'Team media day pro',p:'$1,260',base:1260,hrs:4,days:1,help:1,reels:0,photo:true,video:false,drone:false,light:true,intv:false,recap:false,sameday:false,setup:false,d:'Full team + individual selects',i:['Team photo','2–3 selects per athlete','Coach/staff photo','Roster-size pricing (S/M/L)'],dark:false,bdg:''},
+  ],
+  commercial:[
+    {n:'Facility starter',p:'$500',base:500,hrs:2,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'2 hrs · quick refresh',i:['2 hrs on-site','30–50 edited photos','Standard editing · gallery delivery'],dark:false,bdg:''},
+    {n:'Content growth',p:'$650',base:650,hrs:3,days:1,help:0,reels:2,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'3 hrs · photos + reels',i:['3 hrs on-site','50–70 edited photos','2 social media reels','Standard editing'],dark:false,bdg:'Best value'},
+    {n:'Team story growth',p:'$1,000',base:1000,hrs:4,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'4 hrs · recruiting + LinkedIn',i:['3.5–4 hrs on-site','80–120 edited photos','Departments, groups, environment','Gallery delivery'],dark:true,bdg:'Most popular'},
+    {n:'Employer brand builder',p:'$1,400',base:1400,hrs:4,days:1,help:0,reels:0,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:false,setup:false,d:'4 hrs · photos + brand video',i:['4 hrs on-site','80–120 edited photos','1 brand highlight video','Gallery + video delivery'],dark:false,bdg:''},
+  ],
+  graduation:[
+    {n:'Grad mini — quick',p:'$175',base:175,hrs:0.5,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'15 min · solo session',i:['10–15 edited photos','1 location · 48–72hr delivery','Online gallery'],dark:false,bdg:''},
+    {n:'Grad mini — classic',p:'$250',base:250,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'20–25 min · solo session',i:['20–25 edited photos','1–2 locations · 3–5 day delivery'],dark:false,bdg:'Sweet spot'},
+    {n:'1-hour portrait session',p:'$275',base:275,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Full portrait session',i:['35–50 edited photos','1–2 locations · multiple outfits','3–5 day delivery'],dark:false,bdg:'Best value'},
+    {n:'Ceremony standard',p:'$1,800',base:1800,hrs:3,days:1,help:1,reels:3,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:false,setup:false,d:'3 hrs · photo + video',i:['3 hrs ceremony coverage','80–120 edited photos','3–5 min highlight video','Gallery + video delivery'],dark:true,bdg:'Most popular'},
+    {n:'Ceremony premium',p:'$2,500',base:2500,hrs:4,days:1,help:1,reels:6,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:true,setup:false,d:'3–4 hrs · full story',i:['100–150 edited photos','5–8 min highlight film','Social reels + 2nd photographer','Priority delivery'],dark:false,bdg:''},
+    {n:'Squad session (3–4 grads)',p:'$425',base:425,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'35 min · group session',i:['30–40 edited photos','Individual + group selects','Each grad gets own gallery'],dark:false,bdg:''},
+  ],
+  realestate:[
+    {n:'Airbnb / small property',p:'$270',base:270,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Interior · quick shoot',i:['Interior shoot · edited photos','Online delivery · 48hr turnaround'],dark:false,bdg:''},
+    {n:'Standard listing',p:'$500',base:500,hrs:2,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Interior + exterior',i:['Interior + exterior photography','MLS-ready hi-res + web files','Standard editing · 24–48hr turnaround'],dark:true,bdg:'Most common'},
+    {n:'Premium with drone',p:'$1,100',base:1100,hrs:2,days:1,help:0,reels:0,photo:true,video:true,drone:true,light:false,intv:false,recap:true,sameday:false,setup:false,d:'Ground + aerial + video',i:['Interior + exterior photography','Drone aerial photos + video','Walkthrough video tour','MLS-ready delivery'],dark:false,bdg:''},
+    {n:'Agent retainer',p:'Custom',base:0,hrs:2,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Monthly listing photographer',i:['Priority scheduling','Consistent pricing','Fast turnaround guaranteed','Drone available every shoot'],dark:false,bdg:''},
+  ],
+  workshop:[
+    {n:'Lunch & learn',p:'$850',base:850,hrs:2,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'90 min · corporate',i:['1 topic deep-dive','Hands-on exercise','Resource handout · up to 30'],dark:false,bdg:''},
+    {n:'Half-day workshop',p:'$1,350',base:1350,hrs:4,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'3–4 hrs · 2–3 topics',i:['Photography or video focus','Hands-on exercises · custom agenda','Up to 25 attendees'],dark:true,bdg:'Most popular'},
+    {n:'Full-day bootcamp',p:'$2,250',base:2250,hrs:7,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'6–7 hrs · full curriculum',i:['All 5 topics covered','Drone demo option','Certificates · up to 20 attendees'],dark:false,bdg:''},
+    {n:'Multi-session series (4 wk)',p:'$2,750',base:2750,hrs:4,days:4,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'4-week program',i:['Weekly sessions · schools or corporate','Grant-fundable for schools','Best for real skill development'],dark:false,bdg:''},
+  ],
+  video:[
+    {n:'Hero video — basic',p:'$500',base:500,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'2 × 30s from your footage',i:['Simple cut + color grade','Licensed music','1 revision round · web delivery'],dark:false,bdg:''},
+    {n:'Hero video — standard',p:'$750',base:750,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'2 × 30s · motion text + sound',i:['Motion text + sound design','Color grade · 2 revision rounds','Web + social exports'],dark:true,bdg:'Recommended'},
+    {n:'Hero video — premium',p:'$1,000',base:1000,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'2 × 30s · full brand treatment',i:['Full brand treatment','Multiple versions + platform exports','Licensed music + 2 revisions'],dark:false,bdg:''},
+    {n:'Highlight film edit',p:'$450',base:450,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'3–8 min from your footage',i:['Footage review + selection','Color grade + music + titles','1–2 revision rounds'],dark:false,bdg:''},
+    {n:'Social reel pack (6)',p:'$225',base:225,hrs:0,days:1,help:0,reels:6,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'6 vertical reels (9:16)',i:['6 × 15–30s vertical reels','Color grade + music','Captions available +$50/video'],dark:false,bdg:''},
+  ],
+};
+
+const DQ={
+  events:[{l:'Type of event',t:'select',o:['Corporate conference','Gala / awards night','School event / summit','Community event','Multi-day event','Other']},{l:'Approximate attendees',t:'text',ph:'e.g. 200 guests'}],
+  weddings:[{l:'Wedding date',t:'text',ph:'e.g. October 12, 2026'},{l:'Ceremony + reception location',t:'text',ph:'Venue name and city'}],
+  sports:[{l:'Sport and level of play',t:'select',o:['High school varsity','High school JV','College','Recreational / club','Youth league','Professional']},{l:'Team or individual coverage?',t:'chips',o:['Team coverage','Individual athlete','Both']}],
+  commercial:[{l:'Industry / business type',t:'text',ph:'e.g. logistics, retail, healthcare'},{l:'Primary content use',t:'chips',o:['Website','Social media','Ads','Internal','Print','All of the above']}],
+  graduation:[{l:'Type of graduation',t:'select',o:['High school','College / university','Graduate school','Professional / certification','Other']},{l:'Session type',t:'chips',o:['Mini session','Full portrait','Ceremony coverage','Group / squad session']}],
+  realestate:[{l:'Property type',t:'select',o:['Residential listing','Airbnb / short-term rental','Commercial property','Multi-unit','Other']},{l:'Drone coverage needed?',t:'chips',o:['Yes — definitely','Maybe','No']}],
+  workshop:[{l:'Organization type',t:'select',o:['High school / college','Corporate business','Nonprofit / community org','Government / public sector','Other']},{l:'Topics of interest',t:'chips',o:['Photography basics','Videography','iPhone / mobile content','Drone basics','Social media strategy']}],
+  video:[{l:'Type of video needed',t:'select',o:['Hero / website video','Brand highlight film','Social media reels','Event recap','Sports highlight','Wedding film']},{l:'Do you have existing footage?',t:'chips',o:['Yes — all footage ready','Partial footage','Need full shoot too']}],
+};
+
+/* ── STATE ── */
+let curSvc=null,curPkg=null,curEstimate=0,curBreakdown='';
+
+function pickSvc(el,svc){
+  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  curSvc=svc;
+  curPkg=null;
+  setStep(2);
+  renderPkgs(svc);
+  renderDQ(svc);
+  clearPkg();
+  setTimeout(()=>document.getElementById('packages').scrollIntoView({behavior:'smooth',block:'start'}),220);
+}
+
+function renderPkgs(svc){
+  const g=document.getElementById('pkgGrid');
+  g.innerHTML=(PKGS[svc]||[]).map((p,i)=>`
+    <div class="pkg-card${p.dark?' dark':''}" onclick="pickPkg(this,${i})">
+      ${p.bdg?`<div class="pkg-bdg">${p.bdg}</div>`:''}
+      <div class="pkg-name">${p.n}</div>
+      <div class="pkg-price">${p.p}</div>
+      <div class="pkg-desc">${p.d}</div>
+      <ul class="pkg-list">${p.i.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <button class="pkg-btn" type="button">Select this package</button>
+    </div>`).join('');
+  g.style.cssText='opacity:0;transform:translateY(18px);transition:opacity .45s,transform .45s;';
+  setTimeout(()=>g.style.cssText='opacity:1;transform:translateY(0);transition:opacity .45s,transform .45s;',40);
+}
+
+function pickPkg(el,idx){
+  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('sel-pkg'));
+  el.classList.add('sel-pkg');
+  curPkg=PKGS[curSvc][idx];
+  // Sync to builder
+  setBuilderFromPkg(curPkg);
+  // Show banner
+  document.getElementById('psb-name').textContent=curPkg.n;
+  document.getElementById('psb-price').textContent=curPkg.p;
+  document.getElementById('pkgBanner').classList.add('show');
+  // Sync indicator
+  const sync=document.getElementById('qbSync');
+  sync.className='qb-sync';
+  sync.innerHTML=`✓ Auto-filled from: <strong>${curPkg.n}</strong> — adjust to customize`;
+  // Form summary
+  updateFormSummary();
+  setStep(3);
+  setTimeout(()=>document.getElementById('builder').scrollIntoView({behavior:'smooth',block:'start'}),220);
+}
+
+function clearPkg(){
+  curPkg=null;
+  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('sel-pkg'));
+  document.getElementById('pkgBanner').classList.remove('show');
+  const sync=document.getElementById('qbSync');
+  sync.className='qb-sync empty';
+  sync.innerHTML='💡 Select a package above to auto-fill the calculator';
+  document.getElementById('formPkgSummary').style.display='none';
+}
+
+function setBuilderFromPkg(p){
+  document.getElementById('qbHrs').value=Math.max(1,Math.round(p.hrs));
+  document.getElementById('qbDays').value=Math.max(1,Math.min(5,p.days));
+  document.getElementById('qbHelp').value=p.help;
+  document.getElementById('qbReels').value=p.reels;
+  document.getElementById('qbPhoto').checked=p.photo;
+  document.getElementById('qbVideo').checked=p.video;
+  document.getElementById('qbDrone').checked=p.drone;
+  document.getElementById('qbLight').checked=p.light;
+  document.getElementById('qbIntv').checked=p.intv;
+  document.getElementById('qbRecap').checked=p.recap;
+  document.getElementById('qbSameday').checked=p.sameday;
+  document.getElementById('qbSetup').checked=p.setup;
+  document.getElementById('qbRush').checked=false;
+  qbCalc();
+}
+
+function renderDQ(svc){
+  const qs=DQ[svc]||[];
+  ['dq1','dq2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    const q=qs[i];
+    if(!q){el.innerHTML='';return;}
+    if(q.t==='text') el.innerHTML=`<label class="q-lbl">${q.l}</label><input class="q-input" type="text" id="${id}-val" placeholder="${q.ph||''}">`;
+    else if(q.t==='select') el.innerHTML=`<label class="q-lbl">${q.l}</label><select class="q-select" id="${id}-val"><option value="">Select one</option>${q.o.map(o=>`<option>${o}</option>`).join('')}</select>`;
+    else if(q.t==='chips') el.innerHTML=`<label class="q-lbl">${q.l}</label><div class="chips" id="${id}-val">${q.o.map(o=>`<div class="chip" onclick="tog(this)">${o}</div>`).join('')}</div>`;
+  });
+}
+
+/* ── QUOTE BUILDER ── */
+function qbCalc(){
+  const hrs=+document.getElementById('qbHrs').value;
+  const days=+document.getElementById('qbDays').value;
+  const help=+document.getElementById('qbHelp').value;
+  const reels=+document.getElementById('qbReels').value;
+  const photo=document.getElementById('qbPhoto').checked;
+  const video=document.getElementById('qbVideo').checked;
+  const drone=document.getElementById('qbDrone').checked;
+  const light=document.getElementById('qbLight').checked;
+  const intv=document.getElementById('qbIntv').checked;
+  const recap=document.getElementById('qbRecap').checked;
+  const sameday=document.getElementById('qbSameday').checked;
+  const setup=document.getElementById('qbSetup').checked;
+  const rush=document.getElementById('qbRush').checked;
+
+  document.getElementById('qbHrsOut').textContent=hrs+' hr'+(hrs!==1?'s':'');
+  document.getElementById('qbDaysOut').textContent=days+' day'+(days!==1?'s':'');
+  document.getElementById('qbHelpOut').textContent=help===0?'None':help+' helper'+(help!==1?'s':'');
+  document.getElementById('qbReelsOut').textContent=reels===0?'None':reels+' reel'+(reels!==1?'s':'');
+
+  const items=[];
+  if(hrs>0){
+    if(photo&&video){
+      items.push({l:`Photography: ${hrs}h × ${days}d @ $175/hr`,v:hrs*days*175,cls:''});
+      items.push({l:`Videography: ${hrs}h × ${days}d @ $225/hr`,v:hrs*days*225,cls:''});
+    } else if(photo){
+      items.push({l:`Photography: ${hrs}h × ${days}d @ $175/hr`,v:hrs*days*175,cls:''});
+    } else if(video){
+      items.push({l:`Videography: ${hrs}h × ${days}d @ $225/hr`,v:hrs*days*225,cls:''});
+    }
+    if(photo||video){
+      const eHrs=Math.round(hrs*days*1.4);
+      const eRate=video?55:45;
+      items.push({l:`Editing: ~${eHrs}h @ $${eRate}/hr`,v:eHrs*eRate,cls:''});
+    }
+  }
+  if(help>0) items.push({l:`${help} helper${help!==1?'s':''} × ${hrs}h × ${days}d @ $100/hr`,v:help*hrs*days*100,cls:''});
+  if(reels>0){
+    const rc=reels===1?50:reels<=3?125:reels<=6?225:225+(reels-6)*35;
+    items.push({l:`${reels} social reel${reels!==1?'s':''}`,v:Math.round(rc),cls:''});
+  }
+  if(drone)   items.push({l:'Drone coverage',v:300,cls:'highlight'});
+  if(light)   items.push({l:'Multi-light setup',v:300,cls:'highlight'});
+  if(intv)    items.push({l:'Interview rig + mics',v:150,cls:'highlight'});
+  if(recap)   items.push({l:'Highlight video edit',v:hrs<=4?300:hrs<=8?400:600,cls:'highlight'});
+  if(sameday) items.push({l:'Same-day social teaser',v:150,cls:'highlight'});
+  if(setup)   items.push({l:'Setup / site visit fee',v:300,cls:''});
+
+  let sub=items.reduce((s,i)=>s+i.v,0);
+  let disc=0,discNote='';
+  if(days>=5){disc=Math.round(sub*.20);discNote='Multi-day discount (5+ days, 20%)';}
+  else if(days===4){disc=Math.round(sub*.15);discNote='Multi-day discount (4 days, 15%)';}
+  else if(days===3){disc=Math.round(sub*.10);discNote='Multi-day discount (3 days, 10%)';}
+  let total=sub-disc;
+  if(rush){const rf=Math.round(total*.25);items.push({l:'Rush delivery +25%',v:rf,cls:'rush'});total+=rf;}
+
+  const rows=document.getElementById('qbRows');
+  rows.innerHTML=
+    items.map(i=>`<div class="qbr ${i.cls}"><span>${i.l}</span><span>$${i.v.toLocaleString()}</span></div>`).join('')+
+    (disc?`<div class="qbr disc"><span>${discNote}</span><span>−$${disc.toLocaleString()}</span></div>`:'');
+  document.getElementById('qbTotal').textContent='$'+total.toLocaleString();
+  document.getElementById('qbNote').textContent=disc?discNote:'Estimate — final price confirmed after review.';
+  curEstimate=total;
+  curBreakdown=items.map(i=>`${i.l}: $${i.v.toLocaleString()}`).join('\n')+(disc?`\nDiscount: −$${disc.toLocaleString()}`:'')+(rush?`\nRush delivery: +$${Math.round(sub*.25).toLocaleString()}`:'');
+  updateFormSummary();
+}
+
+function updateFormSummary(){
+  const el=document.getElementById('formPkgSummary');
+  if(curPkg){
+    el.style.display='block';
+    document.getElementById('fps-svc').textContent=curSvc?curSvc.charAt(0).toUpperCase()+curSvc.slice(1):'—';
+    document.getElementById('fps-pkg').textContent=curPkg.n;
+    document.getElementById('fps-total').textContent=curEstimate>0?'$'+curEstimate.toLocaleString()+' (estimated)':curPkg.p;
+  } else {
+    el.style.display='none';
+  }
+}
+
+function tog(el){el.classList.toggle('on');}
+
+function getChips(id){
+  const el=document.getElementById(id);
+  if(!el) return '';
+  return Array.from(el.querySelectorAll('.chip.on')).map(c=>c.textContent).join(', ');
+}
+
+/* ── FORM SUBMIT ── */
+async function submitForm(e){
+  e.preventDefault();
+  const fname=document.getElementById('f-fname').value.trim();
+  const lname=document.getElementById('f-lname').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const date=document.getElementById('f-date').value.trim();
+  const loc=document.getElementById('f-location').value.trim();
+  const desc=document.getElementById('f-description').value.trim();
+  const budget=document.getElementById('f-budget').value;
+  const deliverables=getChips('chips-deliverables');
+  const source=getChips('chips-source');
+  const dq1=document.getElementById('dq1-val');
+  const dq2El=document.getElementById('dq2-val');
+  const dq1v=dq1?(dq1.tagName==='DIV'?getChips('dq1-val'):dq1.value):'';
+  const dq2v=dq2El?(dq2El.tagName==='DIV'?getChips('dq2-val'):dq2El.value):'';
+
+  if(!fname||!email||!date||!desc){
+    document.getElementById('errMsg').textContent='Please fill in all required fields (name, email, date, and description).';
+    document.getElementById('errMsg').classList.add('show');
+    return;
+  }
+
+  const btn=document.getElementById('subBtn');
+  btn.classList.add('loading');
+  btn.disabled=true;
+  btn.textContent='Sending...';
+  document.getElementById('errMsg').classList.remove('show');
+
+  const svcLabel=curSvc?curSvc.charAt(0).toUpperCase()+curSvc.slice(1):'Not specified';
+  const pkgLabel=curPkg?curPkg.n:'Not selected';
+  const pkgPrice=curPkg?curPkg.p:'—';
+  const estimateLabel=curEstimate>0?'$'+curEstimate.toLocaleString()+' (custom estimate)':pkgPrice;
+
+  const params={
+    client_name: fname+' '+lname,
+    client_email: email,
+    client_phone: phone||'Not provided',
+    service: svcLabel,
+    package: pkgLabel,
+    package_price: pkgPrice,
+    event_date: date,
+    event_location: loc||'Not specified',
+    description: desc,
+    deliverables: deliverables||'Not specified',
+    budget: budget||'Not specified',
+    source: source||'Not specified',
+    estimate: estimateLabel,
+    builder_breakdown: curBreakdown||'No custom estimate built',
+    dq1: dq1v||'—',
+    dq2: dq2v||'—',
+    to_email: 'contact@lenzfotos.com',
+    reply_to: email,
+  };
+
+  // Build calendar link with pre-filled description
+  const calDesc=encodeURIComponent(
+    `New inquiry from ${fname} ${lname}\n`+
+    `Service: ${svcLabel}\nPackage: ${pkgLabel}\n`+
+    `Date needed: ${date}\nLocation: ${loc||'TBD'}\n\n`+
+    `Event description: ${desc}\n\n`+
+    `Estimate: ${estimateLabel}\nPhone: ${phone||'N/A'}\nEmail: ${email}`
+  );
+  const calTitle=encodeURIComponent(`Lenz Fotos — ${svcLabel} consultation: ${fname} ${lname}`);
+  const calUrl=`https://calendar.app.google/jikDaNfukcaE9cHH7?title=${calTitle}&description=${calDesc}`;
+
+  try {
+    // Send to owner
+    await emailjs.send(EJS.serviceId, EJS.templateOwner, params);
+    // Send confirmation to client
+    await emailjs.send(EJS.serviceId, EJS.templateClient, {...params, client_name: fname});
+
+    // Show confirmation
+    document.getElementById('qForm').style.display='none';
+    const conf=document.getElementById('confirmScreen');
+    conf.classList.add('show');
+    document.getElementById('cc-name').textContent=fname+' '+lname;
+    document.getElementById('cc-email').textContent=email;
+    document.getElementById('cc-email2').textContent=email;
+    document.getElementById('cc-service').textContent=svcLabel;
+    document.getElementById('cc-package').textContent=pkgLabel;
+    document.getElementById('cc-date').textContent=date;
+    document.getElementById('cc-location').textContent=loc||'Not specified';
+    document.getElementById('cc-estimate').textContent=estimateLabel;
+    document.getElementById('calLink').href=calUrl;
+    setStep(5);
+    setTimeout(()=>document.getElementById('questionnaire').scrollIntoView({behavior:'smooth',block:'start'}),300);
+
+  } catch(err){
+    console.error('EmailJS error:',err);
+    document.getElementById('errMsg').textContent='Something went wrong. Please email us directly at contact@lenzfotos.com — we apologize for the inconvenience!';
+    document.getElementById('errMsg').classList.add('show');
+    btn.classList.remove('loading');
+    btn.disabled=false;
+    btn.textContent='Send my inquiry →';
+  }
+}
+
+function setStep(n){
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('p'+i);
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
+  }
+}
+
+/* ── REVEAL ── */
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('vis');});
+},{threshold:.08,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* ── INIT ── */
+renderPkgs('events');
+renderDQ('events');
+qbCalc();
+</script>
+</body>
+</html>

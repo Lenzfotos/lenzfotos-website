@@ -7,9 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
-/* ── SETUP NOTICE (remove after EmailJS config) ── */
-.setup-banner{background:#1a1a1a;color:#c9a84c;text-align:center;padding:.6rem 1rem;font-size:12px;font-weight:500;letter-spacing:.03em;}
-.setup-banner a{color:#e8d5a3;text-decoration:underline;}
 
 :root{
   --black:#080807;--white:#faf9f5;--cream:#f2ede0;--cream2:#e8e0cc;
@@ -175,11 +172,7 @@ footer a{color:var(--gold);text-decoration:none;}
 </head>
 <body>
 
-<!-- SETUP NOTICE — remove after EmailJS is configured -->
-<div class="setup-banner" id="setupBanner">
-  ⚙️ <strong>Setup required:</strong> Add your EmailJS credentials below to enable email sending.
-  <a href="#" onclick="document.getElementById('setupBanner').style.display='none';return false;">Dismiss</a>
-</div>
+
 
 <!-- PROGRESS -->
 <div class="prog" id="prog">
@@ -390,10 +383,10 @@ footer a{color:var(--gold);text-decoration:none;}
    Fill in the 4 values below then delete the setup banner
    ═══════════════════════════════════════════════════════ */
 const EJS = {
-  publicKey:      'YOUR_PUBLIC_KEY',       // emailjs.com → Account → API Keys
-  serviceId:      'YOUR_SERVICE_ID',       // emailjs.com → Email Services
-  templateOwner:  'YOUR_OWNER_TEMPLATE',   // Template that emails YOU (contact@lenzfotos.com)
-  templateClient: 'YOUR_CLIENT_TEMPLATE',  // Template that emails the CLIENT
+  publicKey:      'hjKd6tgmCM_W0k4Jr',
+  serviceId:      'service_gtdr2lp',
+  templateOwner:  'lenzfotos_owner',
+  templateClient: 'lenzfotos_client',
 };
 /* ═══════════════════════════════════════════════════════
    OWNER TEMPLATE variables to use in EmailJS dashboard:

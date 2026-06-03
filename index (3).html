@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Lenz Fotos — Book a Session</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+
+:root{
+  --black:#080807;--white:#faf9f5;--cream:#f2ede0;--cream2:#e8e0cc;
+  --gold:#c9a84c;--gold2:#e8d5a3;--gold3:#a07830;
+  --text:#1c1a16;--muted:#7a7268;--border:rgba(0,0,0,0.10);
+  --r:14px;--font-display:'Cormorant Garamond',Georgia,serif;
+  --font-body:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--white);color:var(--text);overflow-x:hidden;}
+
+.prog{position:sticky;top:0;z-index:200;background:rgba(250,249,245,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.7rem 1.5rem;display:flex;align-items:center;gap:8px;}
+.prog-steps{display:flex;align-items:center;gap:4px;flex:1;overflow-x:auto;}
+.ps{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);white-space:nowrap;padding:2px 0;}
+.ps.done{color:var(--gold3);}
+.ps.active{color:var(--text);font-weight:600;}
+.pdot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .3s;}
+.ps.done .pdot{background:var(--gold);}
+.ps.active .pdot{background:var(--text);}
+.pdiv{width:20px;height:1px;background:var(--border);}
+@media(max-width:480px){.ps span{display:none;}.pdiv{width:10px;}}
+
+.hero{min-height:100svh;background:var(--black);color:var(--white);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem 1.5rem;position:relative;overflow:hidden;}
+.hero-grain{position:absolute;inset:0;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none;}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.15) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.hero-eye{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:1.75rem;opacity:0;animation:fu .9s .1s ease forwards;}
+.hero h1{font-family:var(--font-display);font-size:clamp(3.2rem,9vw,7rem);font-weight:300;line-height:1.02;margin-bottom:1.75rem;opacity:0;animation:fu .9s .3s ease forwards;}
+.hero h1 em{font-style:italic;color:var(--gold);}
+.hero-sub{font-size:clamp(.9rem,1.8vw,1.1rem);font-weight:300;color:rgba(250,249,245,.6);max-width:460px;line-height:1.75;margin-bottom:2.5rem;opacity:0;animation:fu .9s .5s ease forwards;}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:var(--black);font-family:var(--font-body);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;padding:15px 36px;border-radius:100px;border:none;cursor:pointer;transition:transform .2s,box-shadow .2s;opacity:0;animation:fu .9s .7s ease forwards;}
+.hero-cta:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(201,168,76,.4);}
+.scroll-lbl{position:absolute;bottom:1.75rem;left:50%;transform:translateX(-50%);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(250,249,245,.3);animation:pulse 2.5s infinite;}
+@keyframes fu{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:.3;}50%{opacity:.7;}}
+
+section{padding:5rem 1.5rem;}
+.sec-eye{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.9rem;}
+.sec-title{font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);font-weight:300;line-height:1.12;margin-bottom:.75rem;}
+.sec-sub{font-size:.95rem;color:var(--muted);max-width:500px;line-height:1.7;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.vis{opacity:1;transform:translateY(0);}
+
+#services{background:var(--cream);}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;margin-top:2.5rem;}
+.svc-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.75rem;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.svc-card::after{content:'';position:absolute;inset:0;border-radius:var(--r);border:2px solid var(--gold);opacity:0;transition:opacity .25s;}
+.svc-card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.08);}
+.svc-card.sel{transform:translateY(-3px);box-shadow:0 14px 36px rgba(201,168,76,.18);}
+.svc-card.sel::after{opacity:1;}
+.svc-icon{width:44px;height:44px;border-radius:10px;background:var(--black);display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem;font-size:20px;}
+.svc-name{font-family:var(--font-display);font-size:1.2rem;font-weight:400;margin-bottom:.4rem;}
+.svc-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:1rem;}
+.svc-from{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:.05em;}
+.svc-chk{position:absolute;top:1.1rem;right:1.1rem;width:22px;height:22px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .25s;font-size:11px;color:var(--black);font-weight:700;}
+.svc-card.sel .svc-chk{opacity:1;transform:scale(1);}
+
+#packages{background:var(--white);}
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.1rem;margin-top:2.5rem;}
+.pkg-card{border:1.5px solid var(--border);border-radius:var(--r);padding:1.75rem;cursor:pointer;transition:all .25s;position:relative;}
+.pkg-card.dark{background:var(--black);color:var(--white);border-color:var(--black);}
+.pkg-card.sel-pkg{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold);}
+.pkg-bdg{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:var(--gold);color:var(--black);font-weight:600;margin-bottom:.85rem;}
+.pkg-name{font-family:var(--font-display);font-size:1.2rem;margin-bottom:.3rem;}
+.pkg-price{font-size:1.9rem;font-weight:500;margin-bottom:.2rem;}
+.pkg-desc{font-size:12px;opacity:.6;line-height:1.55;margin-bottom:1rem;}
+.pkg-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.pkg-list li{font-size:12px;display:flex;align-items:flex-start;gap:7px;opacity:.8;}
+.pkg-list li::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0;}
+.pkg-card.dark .pkg-list li::before{color:var(--gold2);}
+.pkg-btn{width:100%;margin-top:1.25rem;padding:11px;border-radius:100px;border:1.5px solid currentColor;background:transparent;font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:.04em;cursor:pointer;transition:all .2s;color:inherit;}
+.pkg-card.dark .pkg-btn{background:var(--gold);color:var(--black);border-color:var(--gold);}
+.pkg-btn:hover{background:var(--gold);color:var(--black);border-color:var(--gold);}
+
+/* ── SELECTED PACKAGE BANNER ── */
+.pkg-selected-banner{display:none;background:var(--black);color:var(--white);border-radius:var(--r);padding:1.25rem 1.5rem;margin-top:1.5rem;align-items:center;gap:12px;flex-wrap:wrap;}
+.pkg-selected-banner.show{display:flex;}
+.psb-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.psb-name{font-family:var(--font-display);font-size:1.1rem;font-weight:400;}
+.psb-price{font-size:1.5rem;font-weight:600;color:var(--gold);margin-left:auto;}
+.psb-change{font-size:11px;color:rgba(250,249,245,.4);cursor:pointer;text-decoration:underline;margin-left:8px;}
+.psb-change:hover{color:var(--gold);}
+
+#builder{background:var(--cream);}
+.qb-wrap{max-width:700px;margin:2.5rem auto 0;}
+
+.qb-sync{display:flex;align-items:center;gap:8px;background:var(--black);color:var(--gold);font-size:12px;font-weight:500;padding:.65rem 1rem;border-radius:10px;margin-bottom:1rem;flex-wrap:wrap;}
+.qb-sync.empty{background:var(--cream2);color:var(--muted);}
+.qb-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:1rem;}
+.qb-label{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;display:block;}
+.qb-steppers{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.85rem;margin-bottom:1.25rem;}
+.qb-stepper{background:var(--cream);border-radius:12px;padding:.85rem 1rem;}
+.qb-stepper-lbl{font-size:11px;color:var(--muted);margin-bottom:.5rem;font-weight:500;}
+.qb-stepper-row{display:flex;align-items:center;gap:8px;}
+.qb-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border);background:var(--white);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;font-family:var(--font-body);}
+.qb-btn:hover,.qb-btn:active{background:var(--black);color:var(--white);border-color:var(--black);}
+.qb-btn:active{transform:scale(.92);}
+.qb-stepper-val{flex:1;text-align:center;font-size:16px;font-weight:600;color:var(--text);}
+.qb-slider-wrap{display:flex;flex-direction:column;gap:.5rem;}
+.qb-slider-top{display:flex;justify-content:space-between;align-items:baseline;}
+.qb-slider-val{font-size:18px;font-weight:600;color:var(--text);}
+.qb-slider-unit{font-size:11px;color:var(--muted);}
+input[type=range].qb-range{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;outline:none;cursor:pointer;margin:4px 0;padding:0;display:block;}
+input[type=range].qb-range::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--border);margin-top:0;}
+input[type=range].qb-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:var(--black);cursor:pointer;border:2px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.25);margin-top:-9px;}
+input[type=range].qb-range::-moz-range-track{height:6px;border-radius:3px;background:var(--border);}
+input[type=range].qb-range::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--black);cursor:pointer;border:2px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.25);}
+.qb-slider-minmax{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);}
+.qb-stepper.wide{grid-column:1/-1;}
+.qb-toggles{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;}
+.qb-tog{font-size:13px;padding:9px 16px;border:1.5px solid var(--border);border-radius:100px;cursor:pointer;transition:all .18s;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background:var(--cream);color:var(--text);}
+.qb-tog.on{background:var(--black);color:var(--white);border-color:var(--black);}
+.qb-tog:active{transform:scale(.95);}
+.qb-tog.gold.on{background:var(--gold);color:var(--black);border-color:var(--gold);}
+.qb-result{background:var(--cream);border-radius:10px;padding:1.25rem;}
+.qb-rows{display:flex;flex-direction:column;gap:5px;font-size:13px;margin-bottom:1rem;}
+.qbr{display:flex;justify-content:space-between;color:var(--muted);gap:8px;}
+.qbr span:last-child{white-space:nowrap;font-weight:500;}
+.qbr.highlight{color:var(--gold3);}
+.qbr.disc{color:#2a7a4a;font-weight:500;}
+.qbr.rush{color:#c0392b;font-weight:500;}
+.qb-total{border-top:1px solid var(--border);padding-top:.9rem;display:flex;justify-content:space-between;align-items:baseline;}
+.qb-total-lbl{font-size:13px;color:var(--muted);}
+.qb-total-num{font-size:2.2rem;font-weight:600;}
+.qb-note{font-size:11px;color:var(--muted);margin-top:.5rem;}
+.qb-fees{border-top:1px dashed var(--border);margin-top:.75rem;padding-top:.75rem;display:flex;flex-direction:column;gap:4px;}
+.qb-fee-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);}
+.qb-fee-row.fee{color:#b45309;}
+.qb-fee-row.total-final{color:var(--text);font-weight:700;font-size:15px;border-top:1px solid var(--border);padding-top:.6rem;margin-top:.25rem;}
+.qb-fee-toggle{display:flex;align-items:center;gap:8px;margin-top:.6rem;}
+.qb-fee-toggle label{font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;}
+.qb-fee-toggle input{accent-color:var(--gold);width:14px;height:14px;cursor:pointer;}
+
+#questionnaire{background:var(--white);}
+.q-form{max-width:660px;margin:2.5rem auto 0;display:flex;flex-direction:column;gap:1.25rem;}
+.q-group{display:flex;flex-direction:column;gap:.4rem;}
+.q-lbl{font-size:12px;font-weight:600;letter-spacing:.03em;}
+.q-lbl .req{color:var(--gold);}
+.q-input,.q-textarea,.q-select{font-family:var(--font-body);font-size:14px;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);color:var(--text);outline:none;transition:border-color .2s,background .2s;width:100%;-webkit-appearance:none;}
+.q-input:focus,.q-textarea:focus,.q-select:focus{border-color:var(--gold);background:var(--white);}
+.q-textarea{resize:vertical;min-height:90px;}
+.q-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:540px){.q-row{grid-template-columns:1fr;}}
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{padding:7px 14px;border:1.5px solid var(--border);border-radius:100px;font-size:12px;background:var(--cream);cursor:pointer;transition:all .18s;user-select:none;}
+.chip.on{background:var(--black);color:var(--white);border-color:var(--black);}
+
+/* ── SELECTED SUMMARY IN FORM ── */
+.form-pkg-summary{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;font-size:13px;}
+.fps-head{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;}
+.fps-row{display:flex;justify-content:space-between;color:var(--muted);}
+.fps-row.total{color:var(--text);font-weight:600;border-top:1px solid var(--border);padding-top:.5rem;margin-top:.5rem;}
+
+.sub-btn{display:inline-flex;align-items:center;gap:9px;background:var(--black);color:var(--white);font-family:var(--font-body);font-size:14px;font-weight:600;padding:16px 38px;border-radius:100px;border:none;cursor:pointer;transition:all .2s;align-self:flex-start;}
+.sub-btn:hover{background:var(--gold);color:var(--black);transform:translateY(-2px);}
+.sub-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.sub-btn.loading::after{content:'';width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;margin-left:4px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── CONFIRMATION SCREEN ── */
+.confirm-screen{display:none;max-width:600px;margin:0 auto;text-align:center;}
+.confirm-screen.show{display:block;}
+.confirm-icon{width:72px;height:72px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1.5rem;}
+.confirm-title{font-family:var(--font-display);font-size:2.2rem;font-weight:300;margin-bottom:.75rem;}
+.confirm-sub{font-size:.95rem;color:var(--muted);line-height:1.7;max-width:460px;margin:0 auto 2rem;}
+.confirm-card{background:var(--cream);border-radius:var(--r);padding:1.5rem;text-align:left;margin-bottom:1.5rem;}
+.cc-head{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.85rem;font-weight:600;}
+.cc-row{display:flex;gap:8px;padding:.5rem 0;border-bottom:1px solid var(--border);font-size:13px;}
+.cc-row:last-child{border-bottom:none;}
+.cc-key{color:var(--muted);min-width:120px;flex-shrink:0;}
+.cc-val{color:var(--text);font-weight:500;}
+.cal-btn{display:inline-flex;align-items:center;gap:8px;background:var(--black);color:var(--white);padding:14px 28px;border-radius:100px;font-size:13px;font-weight:600;text-decoration:none;transition:all .2s;margin:0 6px 12px;}
+.cal-btn:hover{background:var(--gold);color:var(--black);}
+.cal-btn.outline{background:transparent;color:var(--text);border:1.5px solid var(--border);}
+.cal-btn.outline:hover{background:var(--cream);border-color:var(--text);}
+.confirm-note{font-size:12px;color:var(--muted);line-height:1.7;margin-top:1rem;}
+.confirm-note strong{color:var(--text);}
+
+/* ── ERROR MSG ── */
+.err-msg{background:#fff0f0;border:1px solid #fca5a5;border-radius:8px;padding:.85rem 1rem;font-size:13px;color:#c0392b;display:none;margin-top:.75rem;}
+.err-msg.show{display:block;}
+
+footer{background:var(--black);color:rgba(250,249,245,.4);text-align:center;padding:1.75rem;font-size:11px;letter-spacing:.04em;}
+footer a{color:var(--gold);text-decoration:none;}
+</style>
+</head>
+<body>
+
+
+
+<!-- PROGRESS -->
+<div class="prog" id="prog">
+  <div class="prog-steps">
+    <div class="ps active" id="p1"><div class="pdot"></div><span>Service</span></div>
+    <div class="pdiv"></div>
+    <div class="ps" id="p2"><div class="pdot"></div><span>Package</span></div>
+    <div class="pdiv"></div>
+    <div class="ps" id="p3"><div class="pdot"></div><span>Quote</span></div>
+    <div class="pdiv"></div>
+    <div class="ps" id="p4"><div class="pdot"></div><span>Your details</span></div>
+    <div class="pdiv"></div>
+    <div class="ps" id="p5"><div class="pdot"></div><span>Confirmed ✓</span></div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grain"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-eye">Pomona · Inland Empire · Southern California</div>
+  <h1>Every moment<br>deserves to be<br><em>remembered.</em></h1>
+  <p class="hero-sub">Photography &amp; videography for events, sports, weddings, brands, graduations, and beyond.</p>
+  <a href="#services" class="hero-cta">Get started ↓</a>
+  <div class="scroll-lbl">Scroll to begin</div>
+</section>
+
+<!-- STEP 1 — SERVICE -->
+<section id="services">
+  <div class="sec-eye reveal">Step 01 — Choose your service</div>
+  <h2 class="sec-title reveal">What are we<br>capturing together?</h2>
+  <p class="sec-sub reveal">Select the service that fits your vision and we'll load the right packages instantly.</p>
+  <div class="svc-grid" id="svcGrid">
+    <div class="svc-card reveal" onclick="pickSvc(this,'events')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🎉</div><div class="svc-name">Events &amp; Conferences</div><div class="svc-desc">Corporate events, galas, summits, school events, large multi-day productions.</div><div class="svc-from">Starting at $450</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'weddings')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">💍</div><div class="svc-name">Weddings</div><div class="svc-desc">Ceremony coverage, highlight films, engagement sessions, and full-day packages.</div><div class="svc-from">Starting at $1,200</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'sports')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🏆</div><div class="svc-name">Sports Coverage</div><div class="svc-desc">Game day, athlete spotlights, team media days, and recruiting reels.</div><div class="svc-from">Starting at $80</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'commercial')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🏢</div><div class="svc-name">Commercial &amp; Brand</div><div class="svc-desc">Warehouse, facility, employee content, headshots, and brand highlight videos.</div><div class="svc-from">Starting at $500</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'graduation')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🎓</div><div class="svc-name">Graduation &amp; Portraits</div><div class="svc-desc">Ceremony coverage, mini sessions, senior portraits, and group grad sessions.</div><div class="svc-from">Starting at $175</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'realestate')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🏠</div><div class="svc-name">Real Estate</div><div class="svc-desc">Interior, exterior, drone aerials, Airbnb shoots, and video walkthroughs.</div><div class="svc-from">Starting at $270</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'workshop')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">📸</div><div class="svc-name">Workshops</div><div class="svc-desc">Photography &amp; content creation workshops for schools, businesses, and nonprofits.</div><div class="svc-from">Starting at $700</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'video')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🎬</div><div class="svc-name">Video Editing Only</div><div class="svc-desc">Hero videos, brand reels, highlight films, and social content from your footage.</div><div class="svc-from">Starting at $500</div></div>
+    <div class="svc-card reveal" onclick="pickSvc(this,'schoolportraits')" tabindex="0"><div class="svc-chk">✓</div><div class="svc-icon">🏫</div><div class="svc-name">School Portraits</div><div class="svc-desc">Yearbook, ID, and senior portrait days. Staffing, packages, and commission built in.</div><div class="svc-from">Starting at $25/student</div></div>
+  </div>
+</section>
+
+<!-- STEP 2 — PACKAGES -->
+<section id="packages">
+  <div class="sec-eye reveal">Step 02 — Select your package</div>
+  <h2 class="sec-title reveal">Choose your package</h2>
+  <p class="sec-sub reveal">Transparent pricing, no surprises. Click a package to pre-fill the quote builder below.</p>
+  <div class="pkg-grid reveal" id="pkgGrid"></div>
+  <div class="pkg-selected-banner reveal" id="pkgBanner">
+    <div>
+      <div class="psb-label">Selected package</div>
+      <div class="psb-name" id="psb-name">—</div>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:4px;margin-left:auto;">
+      <div class="psb-price" id="psb-price">—</div>
+      <span class="psb-change" onclick="clearPkg()">Change</span>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3 — QUOTE BUILDER -->
+<section id="builder">
+  <div class="sec-eye reveal">Step 03 — Build your quote</div>
+  <h2 class="sec-title reveal">Customize &amp; price<br>your session</h2>
+  <p class="sec-sub reveal">Tap to add or remove items. Your estimate updates live and carries into the form below.</p>
+  <div class="qb-wrap reveal">
+    <div class="qb-sync empty" id="qbSync">
+      💡 Select a package above to auto-fill the calculator
+    </div>
+    <div class="qb-card" id="qbCard">
+      <!-- dynamically rendered per service -->
+    </div>
+  </div>
+</section>
+
+<!-- STEP 4 — INTAKE FORM -->
+<section id="questionnaire">
+  <div class="sec-eye reveal">Step 04 — Your details</div>
+  <h2 class="sec-title reveal">Tell us about<br>your vision</h2>
+  <p class="sec-sub reveal">Fill this out and we'll send you a confirmation with everything. No call required — we'll reach out within 24 hrs.</p>
+
+  <form class="q-form reveal" id="qForm" onsubmit="submitForm(event)" novalidate>
+
+    <!-- Package summary in form -->
+    <div class="form-pkg-summary" id="formPkgSummary" style="display:none;">
+      <div class="fps-head">Your selected package</div>
+      <div class="fps-row"><span class="cc-key">Service</span><span id="fps-svc">—</span></div>
+      <div class="fps-row"><span class="cc-key">Package</span><span id="fps-pkg">—</span></div>
+      <div class="fps-row total"><span class="cc-key">Estimated total</span><span id="fps-total">—</span></div>
+    </div>
+
+    <div class="q-row">
+      <div class="q-group"><label class="q-lbl">First name <span class="req">*</span></label><input class="q-input" type="text" id="f-fname" placeholder="Your first name" required></div>
+      <div class="q-group"><label class="q-lbl">Last name <span class="req">*</span></label><input class="q-input" type="text" id="f-lname" placeholder="Your last name" required></div>
+    </div>
+    <div class="q-row">
+      <div class="q-group"><label class="q-lbl">Email <span class="req">*</span></label><input class="q-input" type="email" id="f-email" placeholder="your@email.com" required></div>
+      <div class="q-group"><label class="q-lbl">Phone</label><input class="q-input" type="tel" id="f-phone" placeholder="(555) 000-0000"></div>
+    </div>
+    <div class="q-group"><label class="q-lbl">Event / session date <span class="req">*</span></label><input class="q-input" type="text" id="f-date" placeholder="e.g. June 15, 2026 or Summer 2026" required></div>
+    <div class="q-group"><label class="q-lbl">Location or venue</label><input class="q-input" type="text" id="f-location" placeholder="City, venue name, or address"></div>
+    <div class="q-group" id="dq1"></div>
+    <div class="q-group" id="dq2"></div>
+    <div class="q-group">
+      <label class="q-lbl">Deliverables that matter most</label>
+      <div class="chips" id="chips-deliverables">
+        <div class="chip" onclick="tog(this)">Edited photos</div>
+        <div class="chip" onclick="tog(this)">Highlight video</div>
+        <div class="chip" onclick="tog(this)">Social media reels</div>
+        <div class="chip" onclick="tog(this)">Drone footage</div>
+        <div class="chip" onclick="tog(this)">Same-day sneak peek</div>
+        <div class="chip" onclick="tog(this)">Raw files</div>
+      </div>
+    </div>
+    <div class="q-group">
+      <label class="q-lbl">Budget range</label>
+      <select class="q-select" id="f-budget">
+        <option value="">Select a range</option>
+        <option>Under $500</option>
+        <option>$500–$1,000</option>
+        <option>$1,000–$2,000</option>
+        <option>$2,000–$3,500</option>
+        <option>$3,500–$5,000</option>
+        <option>$5,000+</option>
+        <option>Flexible / open to packages</option>
+      </select>
+    </div>
+    <div class="q-group"><label class="q-lbl">Describe your event or vision <span class="req">*</span></label><textarea class="q-textarea" id="f-description" placeholder="Tell me about the event, what you're hoping to capture, any must-have moments, and anything else I should know..." required></textarea></div>
+    <div class="q-group">
+      <label class="q-lbl">How did you hear about Lenz Fotos?</label>
+      <div class="chips" id="chips-source">
+        <div class="chip" onclick="tog(this)">Instagram</div>
+        <div class="chip" onclick="tog(this)">Google</div>
+        <div class="chip" onclick="tog(this)">Referral</div>
+        <div class="chip" onclick="tog(this)">Seen my work</div>
+        <div class="chip" onclick="tog(this)">Website</div>
+        <div class="chip" onclick="tog(this)">Other</div>
+      </div>
+    </div>
+
+    <div class="err-msg" id="errMsg">Something went wrong sending your inquiry. Please email us directly at <strong>contact@lenzfotos.com</strong></div>
+    <button type="submit" class="sub-btn" id="subBtn">Send my inquiry →</button>
+    <p style="font-size:11px;color:var(--muted);margin-top:.5rem;">You'll receive a confirmation email immediately. We'll follow up within 24 hours.</p>
+  </form>
+
+  <!-- CONFIRMATION SCREEN -->
+  <div class="confirm-screen" id="confirmScreen">
+    <div class="confirm-icon">✓</div>
+    <h2 class="confirm-title">You're all set!</h2>
+    <p class="confirm-sub">Your inquiry has been sent to Lenz Fotos and a confirmation has been sent to your email. We'll be in touch within 24 hours to discuss your vision.</p>
+
+    <div class="confirm-card">
+      <div class="cc-head">Your inquiry summary</div>
+      <div class="cc-row"><span class="cc-key">Name</span><span class="cc-val" id="cc-name">—</span></div>
+      <div class="cc-row"><span class="cc-key">Email</span><span class="cc-val" id="cc-email">—</span></div>
+      <div class="cc-row"><span class="cc-key">Service</span><span class="cc-val" id="cc-service">—</span></div>
+      <div class="cc-row"><span class="cc-key">Package</span><span class="cc-val" id="cc-package">—</span></div>
+      <div class="cc-row"><span class="cc-key">Date</span><span class="cc-val" id="cc-date">—</span></div>
+      <div class="cc-row"><span class="cc-key">Location</span><span class="cc-val" id="cc-location">—</span></div>
+      <div class="cc-row"><span class="cc-key">Estimate</span><span class="cc-val" id="cc-estimate">—</span></div>
+    </div>
+
+    <p style="font-size:.95rem;color:var(--muted);margin-bottom:1.25rem;">Want to grab a time on the calendar now?</p>
+    <div>
+      <a id="calLink" href="https://calendar.app.google/jikDaNfukcaE9cHH7" target="_blank" class="cal-btn">📅 Book a discovery call</a>
+      <a href="https://www.lenzfotos.com" target="_blank" class="cal-btn outline">View portfolio</a>
+    </div>
+    <p class="confirm-note">A copy of this inquiry has been sent to <strong id="cc-email2">your email</strong> and to the Lenz Fotos team. Check your spam folder if you don't see it within a few minutes.</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 Lenz Fotos · Pomona, CA · <a href="https://www.lenzfotos.com">lenzfotos.com</a> · <a href="https://www.instagram.com/lenzfotos">@lenzfotos</a> · <a href="mailto:contact@lenzfotos.com">contact@lenzfotos.com</a></p>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   ██████████ EMAILJS CONFIG — FILL THESE IN ██████████
+   Steps:
+   1. Go to emailjs.com → sign up free
+   2. Add Email Service (Gmail) → copy Service ID
+   3. Create two email templates (see comments below)
+   4. Copy Public Key from Account → API Keys
+   Fill in the 4 values below then delete the setup banner
+   ═══════════════════════════════════════════════════════ */
+const EJS = {
+  publicKey:      'hjKd6tgmCM_W0k4Jr',
+  serviceId:      'service_gtdr2lp',
+  templateOwner:  'lenzfotos_owner',
+  templateClient: 'lenzfotos_client',
+};
+/* ═══════════════════════════════════════════════════════
+   OWNER TEMPLATE variables to use in EmailJS dashboard:
+   {{client_name}} {{client_email}} {{client_phone}}
+   {{service}} {{package}} {{package_price}}
+   {{event_date}} {{event_location}} {{description}}
+   {{deliverables}} {{budget}} {{source}}
+   {{estimate}} {{builder_breakdown}}
+
+   CLIENT TEMPLATE variables:
+   {{client_name}} {{service}} {{package}}
+   {{event_date}} {{event_location}} {{estimate}}
+   {{description}}
+   ═══════════════════════════════════════════════════════ */
+
+emailjs.init({ publicKey: EJS.publicKey });
+
+/* ── PACKAGE DATA ── */
+const PKGS={
+  events:[
+    {n:'Photography bundle',p:'$450',base:450,hrs:2,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'2 hrs · photos only',i:['2 hrs coverage','40–60 edited photos','Standard editing','Online gallery · +$150/hr extra'],dark:false,bdg:''},
+    {n:'Videography bundle',p:'$550',base:550,hrs:2,days:1,help:0,reels:0,photo:false,video:true,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'2 hrs · video only',i:['2 hrs coverage','7–15 color-graded clips','Standard editing','Online delivery · +$175/hr extra'],dark:false,bdg:''},
+    {n:'Trifecta bundle',p:'$900',base:900,hrs:2,days:1,help:0,reels:0,photo:true,video:true,drone:true,light:false,intv:false,recap:false,sameday:false,setup:false,d:'2 hrs · photo + video + drone',i:['40–70 edited photos','4–8 color-graded 4K clips','Standard editing','+$300/hr extra'],dark:false,bdg:'Best value'},
+    {n:'Large event standard',p:'$3,200',base:3200,hrs:8,days:1,help:2,reels:6,photo:true,video:true,drone:false,light:true,intv:true,recap:true,sameday:false,setup:false,d:'8 hrs · full crew + social',i:['8 hrs photo + video','200–300 edited photos','5–8 min highlight video','2 helpers + multi-light rig','6 social reels + AI recap'],dark:true,bdg:'Most recommended'},
+    {n:'Large event premium',p:'$4,800+',base:4800,hrs:10,days:1,help:3,reels:10,photo:true,video:true,drone:true,light:true,intv:true,recap:true,sameday:true,setup:true,d:'10+ hrs · full production',i:['10+ hrs full day','300–400+ photos','8–12 min cinematic recap','3 helpers + drone','Full lighting rig','10 reels + same-day teaser'],dark:false,bdg:''},
+    {n:'Multi-day (per day)',p:'$1,200/day',base:1200,hrs:8,days:2,help:1,reels:3,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:false,setup:true,d:'Day rate + setup fee $300',i:['Up to 8 hrs/day','Photo + video · editing included','Helper day rate: $600/day','3-day: 10% off · 5+: 20% off'],dark:false,bdg:''},
+  ],
+  weddings:[
+    {n:'Ceremony essentials',p:'$1,800',base:1800,hrs:5,days:1,help:0,reels:0,photo:false,video:true,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'Video only · 4–5 hrs',i:['4–5 hrs ceremony + reception','3–5 min highlight film','Full ceremony edit','Color grade + licensed music','1 revision round'],dark:false,bdg:''},
+    {n:'Full day standard',p:'$2,800',base:2800,hrs:8,days:1,help:0,reels:3,photo:true,video:true,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'Photo + video · 8 hrs',i:['8 hrs photo + video','150–200 edited photos','5–7 min highlight film','3 vertical social reels','2 revision rounds'],dark:true,bdg:'Most popular'},
+    {n:'Full story premium',p:'$3,800',base:3800,hrs:10,days:1,help:0,reels:6,photo:true,video:true,drone:true,light:false,intv:false,recap:true,sameday:true,setup:false,d:'Photo + video + drone · 10 hrs',i:['10 hrs full coverage','200–250 edited photos','8–10 min cinematic film','Drone · 6 social reels','Same-day sneak peek + raw files'],dark:false,bdg:''},
+    {n:'Edit-only highlight film',p:'$1,200',base:1200,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'From your existing footage',i:['Up to 20 hrs footage review','5–7 min highlight film','Color grade + licensed music','Titles + transitions · 1 revision'],dark:false,bdg:''},
+    {n:'Engagement session',p:'$350',base:350,hrs:1,days:1,help:0,reels:1,photo:true,video:true,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'1 hr · photo + video',i:['1 hr photo + video session','30–50 edited photos','Short social reel','Online gallery delivery'],dark:false,bdg:'Add-on'},
+  ],
+  sports:[
+    {n:'Photo spotlight',p:'$80',base:80,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Action photos · 1 athlete',i:['8–16 edited action photos','1 player focus','Social-ready hi-res files','48hr delivery'],dark:false,bdg:''},
+    {n:'Video spotlight',p:'$100',base:100,hrs:1,days:1,help:0,reels:1,photo:false,video:true,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Highlight reel · 1 athlete',i:['15–30s athlete highlight video','Vertical 9:16 format','Social-ready · 48hr delivery'],dark:false,bdg:''},
+    {n:'Spotlight combo',p:'$150',base:150,hrs:1,days:1,help:0,reels:1,photo:true,video:true,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Photos + reel · 1 athlete',i:['8–16 edited action photos','15–30s highlight reel (9:16)','Best value for recruiting content'],dark:false,bdg:'Best value'},
+    {n:'Full athlete spotlight',p:'$350',base:350,hrs:1,days:1,help:0,reels:1,photo:true,video:true,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'1 hr · photos + reel + session',i:['1 hr dedicated coverage','15–25 edited action photos','1 social reel (vertical)','Ideal for recruiting profiles'],dark:false,bdg:''},
+    {n:'Game day pro',p:'$650',base:650,hrs:3,days:1,help:0,reels:1,photo:true,video:true,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'3 hrs · photos + highlight',i:['3 hrs coverage','60–80 edited photos','30–60s highlight video','Social reels available'],dark:true,bdg:'Most popular'},
+    {n:'School game coverage',p:'$900',base:900,hrs:3,days:1,help:0,reels:3,photo:true,video:true,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'3 hrs · full combo',i:['50–60 edited photos','3–5 min highlight video','Warmup coverage +$150','Drone add-on available'],dark:false,bdg:'Best value'},
+    {n:'Media day basic — S (≤12)',p:'$540',base:540,hrs:4,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:true,intv:false,recap:false,sameday:false,setup:false,d:'≤12 athletes · basic tier',i:['Team photo','1 posed look per athlete','Basic background + lighting','Online gallery delivery'],dark:false,bdg:''},
+    {n:'Media day basic — M (13–20)',p:'$720',base:720,hrs:4,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:true,intv:false,recap:false,sameday:false,setup:false,d:'13–20 athletes · basic tier',i:['Team photo','1 posed look per athlete','Basic background + lighting','Online gallery delivery'],dark:false,bdg:''},
+    {n:'Media day basic — L (21–30)',p:'$900',base:900,hrs:5,days:1,help:1,reels:0,photo:true,video:false,drone:false,light:true,intv:false,recap:false,sameday:false,setup:false,d:'21–30 athletes · basic tier',i:['Team photo','1 posed look per athlete','Basic background + lighting','Online gallery delivery'],dark:false,bdg:''},
+    {n:'Media day pro — S (≤12)',p:'$900',base:900,hrs:4,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:true,intv:false,recap:false,sameday:false,setup:false,d:'≤12 athletes · pro tier',i:['Team photo','2–3 edited selects per athlete','Coach/staff photo','Poster-ready selects included'],dark:true,bdg:'Pro'},
+    {n:'Media day pro — M (13–20)',p:'$1,260',base:1260,hrs:5,days:1,help:1,reels:0,photo:true,video:false,drone:false,light:true,intv:false,recap:false,sameday:false,setup:false,d:'13–20 athletes · pro tier',i:['Team photo','2–3 edited selects per athlete','Coach/staff photo','Poster-ready selects included'],dark:true,bdg:'Pro'},
+    {n:'Media day pro — L (21–30)',p:'$1,620',base:1620,hrs:6,days:1,help:2,reels:0,photo:true,video:false,drone:false,light:true,intv:false,recap:false,sameday:false,setup:false,d:'21–30 athletes · pro tier',i:['Team photo','2–3 edited selects per athlete','Coach/staff photo','Poster-ready selects included'],dark:true,bdg:'Pro'},
+    {n:'Football / Large Team — Varsity',p:'$1,800',base:1800,hrs:6,days:1,help:2,reels:3,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:false,setup:false,d:'Varsity · up to 60 athletes',i:['Up to 60 athletes · team photo','Individual posed shots per athlete','Coach + staff portraits','5–7 min hype highlight video','3 social reels · online gallery','Parent purchase link available'],dark:true,bdg:'Large team'},
+    {n:'Football / Large Team — JV',p:'$1,200',base:1200,hrs:4,days:1,help:1,reels:2,photo:true,video:false,drone:false,light:true,intv:false,recap:false,sameday:false,setup:false,d:'JV · up to 45 athletes',i:['Up to 45 athletes · team photo','Individual posed shots per athlete','Coach portrait included','2 social reels · online gallery','Parent purchase link available'],dark:false,bdg:'JV'},
+    {n:'Football Both Teams (Varsity + JV)',p:'$2,600',base:2600,hrs:8,days:1,help:3,reels:5,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:false,setup:false,d:'Varsity + JV same day',i:['Both rosters · full team photos','All individual athlete shots','Coaches + staff portraits','Combined hype highlight video','5 social reels · shared gallery','Separate parent galleries per team'],dark:false,bdg:'Best value'},
+    {n:'Full Program Day (All Levels)',p:'$3,400',base:3400,hrs:10,days:1,help:4,reels:8,photo:true,video:true,drone:true,light:true,intv:false,recap:true,sameday:false,setup:true,d:'Varsity + JV + Freshman',i:['All team levels covered','Drone aerial team photos','Full highlight video per team','8 social reels · parent galleries','Aerial stadium/field shots','Priority 48hr delivery option'],dark:false,bdg:'Full program'},
+  ],
+  commercial:[
+    {n:'Facility starter',p:'$500',base:500,hrs:2,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'2 hrs · quick refresh',i:['2 hrs on-site','30–50 edited photos','Standard editing · gallery delivery'],dark:false,bdg:''},
+    {n:'Content growth',p:'$650',base:650,hrs:3,days:1,help:0,reels:2,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'3 hrs · photos + reels',i:['3 hrs on-site','50–70 edited photos','2 social media reels','Standard editing'],dark:false,bdg:'Best value'},
+    {n:'Team story growth',p:'$1,000',base:1000,hrs:4,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'4 hrs · recruiting + LinkedIn',i:['3.5–4 hrs on-site','80–120 edited photos','Departments, groups, environment','Gallery delivery'],dark:true,bdg:'Most popular'},
+    {n:'Employer brand builder',p:'$1,400',base:1400,hrs:4,days:1,help:0,reels:0,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:false,setup:false,d:'4 hrs · photos + brand video',i:['4 hrs on-site','80–120 edited photos','1 brand highlight video','Gallery + video delivery'],dark:false,bdg:''},
+  ],
+  graduation:[
+    {n:'Grad mini — quick',p:'$175',base:175,hrs:0.5,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'15 min · solo session',i:['10–15 edited photos','1 location · 48–72hr delivery','Online gallery'],dark:false,bdg:''},
+    {n:'Grad mini — classic',p:'$250',base:250,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'20–25 min · solo session',i:['20–25 edited photos','1–2 locations · 3–5 day delivery'],dark:false,bdg:'Sweet spot'},
+    {n:'1-hour portrait session',p:'$275',base:275,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Full portrait session',i:['35–50 edited photos','1–2 locations · multiple outfits','3–5 day delivery'],dark:false,bdg:'Best value'},
+    {n:'Ceremony standard',p:'$1,800',base:1800,hrs:3,days:1,help:1,reels:3,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:false,setup:false,d:'3 hrs · photo + video',i:['3 hrs ceremony coverage','80–120 edited photos','3–5 min highlight video','Gallery + video delivery'],dark:true,bdg:'Most popular'},
+    {n:'Ceremony premium',p:'$2,500',base:2500,hrs:4,days:1,help:1,reels:6,photo:true,video:true,drone:false,light:true,intv:false,recap:true,sameday:true,setup:false,d:'3–4 hrs · full story',i:['100–150 edited photos','5–8 min highlight film','Social reels + 2nd photographer','Priority delivery'],dark:false,bdg:''},
+    {n:'Squad session (3–4 grads)',p:'$425',base:425,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'35 min · group session',i:['30–40 edited photos','Individual + group selects','Each grad gets own gallery'],dark:false,bdg:''},
+  ],
+  realestate:[
+    {n:'Airbnb / small property',p:'$270',base:270,hrs:1,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Interior · quick shoot',i:['Interior shoot · edited photos','Online delivery · 48hr turnaround'],dark:false,bdg:''},
+    {n:'Standard listing',p:'$500',base:500,hrs:2,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Interior + exterior',i:['Interior + exterior photography','MLS-ready hi-res + web files','Standard editing · 24–48hr turnaround'],dark:true,bdg:'Most common'},
+    {n:'Premium with drone',p:'$1,100',base:1100,hrs:2,days:1,help:0,reels:0,photo:true,video:true,drone:true,light:false,intv:false,recap:true,sameday:false,setup:false,d:'Ground + aerial + video',i:['Interior + exterior photography','Drone aerial photos + video','Walkthrough video tour','MLS-ready delivery'],dark:false,bdg:''},
+    {n:'Agent retainer',p:'Custom',base:0,hrs:2,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Monthly listing photographer',i:['Priority scheduling','Consistent pricing','Fast turnaround guaranteed','Drone available every shoot'],dark:false,bdg:''},
+  ],
+  workshop:[
+    {n:'Lunch & learn',p:'$850',base:850,hrs:2,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'90 min · corporate',i:['1 topic deep-dive','Hands-on exercise','Resource handout · up to 30'],dark:false,bdg:''},
+    {n:'Half-day workshop',p:'$1,350',base:1350,hrs:4,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'3–4 hrs · 2–3 topics',i:['Photography or video focus','Hands-on exercises · custom agenda','Up to 25 attendees'],dark:true,bdg:'Most popular'},
+    {n:'Full-day bootcamp',p:'$2,250',base:2250,hrs:7,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'6–7 hrs · full curriculum',i:['All 5 topics covered','Drone demo option','Certificates · up to 20 attendees'],dark:false,bdg:''},
+    {n:'Multi-session series (4 wk)',p:'$2,750',base:2750,hrs:4,days:4,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'4-week program',i:['Weekly sessions · schools or corporate','Grant-fundable for schools','Best for real skill development'],dark:false,bdg:''},
+  ],
+  schoolportraits:[
+    {n:'Basic package',p:'$25/student',base:25,hrs:7,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Digital file + 2 wallets',i:['Digital file download','2 wallet prints','School commission: $5/student','Yearbook + ID sessions'],dark:false,bdg:''},
+    {n:'Standard package',p:'$45/student',base:45,hrs:7,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Digital + 5×7, 3×5s, wallets',i:['Digital file download','5×7 print + 3×5 prints + wallets','School commission: $9/student','Yearbook + ID sessions'],dark:true,bdg:'⭐ Most chosen'},
+    {n:'Premium package',p:'$75/student',base:75,hrs:7,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'3–5 poses · full gallery + prints',i:['3–5 poses per student','Full digital gallery','Complete print package','School commission: $15/student'],dark:false,bdg:''},
+    {n:'Senior package',p:'$135/student',base:135,hrs:0,days:1,help:0,reels:0,photo:true,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'Extended senior session',i:['Extended senior session','Full digital gallery','Complete print package','School commission: $27/student'],dark:false,bdg:'Senior only'},
+  ],
+  video:[
+    {n:'Hero video — basic',p:'$500',base:500,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'2 × 30s from your footage',i:['Simple cut + color grade','Licensed music','1 revision round · web delivery'],dark:false,bdg:''},
+    {n:'Hero video — standard',p:'$750',base:750,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'2 × 30s · motion text + sound',i:['Motion text + sound design','Color grade · 2 revision rounds','Web + social exports'],dark:true,bdg:'Recommended'},
+    {n:'Hero video — premium',p:'$1,000',base:1000,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'2 × 30s · full brand treatment',i:['Full brand treatment','Multiple versions + platform exports','Licensed music + 2 revisions'],dark:false,bdg:''},
+    {n:'Highlight film edit',p:'$450',base:450,hrs:0,days:1,help:0,reels:0,photo:false,video:false,drone:false,light:false,intv:false,recap:true,sameday:false,setup:false,d:'3–8 min from your footage',i:['Footage review + selection','Color grade + music + titles','1–2 revision rounds'],dark:false,bdg:''},
+    {n:'Social reel pack (6)',p:'$225',base:225,hrs:0,days:1,help:0,reels:6,photo:false,video:false,drone:false,light:false,intv:false,recap:false,sameday:false,setup:false,d:'6 vertical reels (9:16)',i:['6 × 15–30s vertical reels','Color grade + music','Captions available +$50/video'],dark:false,bdg:''},
+  ],
+};
+
+const DQ={
+  events:[{l:'Type of event',t:'select',o:['Corporate conference','Gala / awards night','School event / summit','Community event','Multi-day event','Other']},{l:'Approximate attendees',t:'text',ph:'e.g. 200 guests'}],
+  weddings:[{l:'Wedding date',t:'text',ph:'e.g. October 12, 2026'},{l:'Ceremony + reception location',t:'text',ph:'Venue name and city'}],
+  sports:[{l:'Sport and level of play',t:'select',o:['High school varsity','High school JV','College','Recreational / club','Youth league','Professional']},{l:'Type of coverage',t:'chips',o:['Team game day','Individual athlete spotlight','Team media day','Both team + individual']}],
+  commercial:[{l:'Industry / business type',t:'text',ph:'e.g. logistics, retail, healthcare'},{l:'Primary content use',t:'chips',o:['Website','Social media','Ads','Internal','Print','All of the above']}],
+  graduation:[{l:'Type of graduation',t:'select',o:['High school','College / university','Graduate school','Professional / certification','Other']},{l:'Session type',t:'chips',o:['Mini session','Full portrait','Ceremony coverage','Group / squad session']}],
+  realestate:[{l:'Property type',t:'select',o:['Residential listing','Airbnb / short-term rental','Commercial property','Multi-unit','Other']},{l:'Drone coverage needed?',t:'chips',o:['Yes — definitely','Maybe','No']}],
+  workshop:[{l:'Organization type',t:'select',o:['High school / college','Corporate business','Nonprofit / community org','Government / public sector','Other']},{l:'Topics of interest',t:'chips',o:['Photography basics','Videography','iPhone / mobile content','Drone basics','Social media strategy']}],
+  schoolportraits:[
+    {l:'Service type',t:'select',o:['Yearbook + ID photos','Senior portraits only','Both yearbook + senior','ID photos only']},
+    {l:'Special requests or notes',t:'text',ph:'e.g. specific backgrounds, makeup artists, time constraints'},
+  ],
+  video:[{l:'Type of video needed',t:'select',o:['Hero / website video','Brand highlight film','Social media reels','Event recap','Sports highlight','Wedding film']},{l:'Do you have existing footage?',t:'chips',o:['Yes — all footage ready','Partial footage','Need full shoot too']}],
+};
+
+/* ── STATE ── */
+let curSvc=null,curPkg=null,curEstimate=0,curBreakdown='';
+// Track default stepper values from package selection to detect modifications
+let curPkgDefaults={};
+
+function pickSvc(el,svc){
+  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  curSvc=svc;
+  curPkg=null;
+  setStep(2);
+  renderPkgs(svc);
+  renderDQ(svc);
+  renderBuilder(svc);
+  clearPkg();
+  setTimeout(()=>document.getElementById('packages').scrollIntoView({behavior:'smooth',block:'start'}),220);
+}
+
+function renderPkgs(svc){
+  const g=document.getElementById('pkgGrid');
+  g.innerHTML=(PKGS[svc]||[]).map((p,i)=>`
+    <div class="pkg-card${p.dark?' dark':''}" onclick="pickPkg(this,${i})">
+      ${p.bdg?`<div class="pkg-bdg">${p.bdg}</div>`:''}
+      <div class="pkg-name">${p.n}</div>
+      <div class="pkg-price">${p.p}</div>
+      <div class="pkg-desc">${p.d}</div>
+      <ul class="pkg-list">${p.i.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <button class="pkg-btn" type="button">Select this package</button>
+    </div>`).join('');
+  g.style.cssText='opacity:0;transform:translateY(18px);transition:opacity .45s,transform .45s;';
+  setTimeout(()=>g.style.cssText='opacity:1;transform:translateY(0);transition:opacity .45s,transform .45s;',40);
+}
+
+function pickPkg(el,idx){
+  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('sel-pkg'));
+  el.classList.add('sel-pkg');
+  curPkg=PKGS[curSvc][idx];
+  // Sync to builder
+  setBuilderFromPkg(curPkg);
+  // Show banner
+  document.getElementById('psb-name').textContent=curPkg.n;
+  document.getElementById('psb-price').textContent=curPkg.p;
+  document.getElementById('pkgBanner').classList.add('show');
+  // Sync indicator
+  const sync=document.getElementById('qbSync');
+  sync.className='qb-sync';
+  sync.innerHTML=`✓ Auto-filled from: <strong>${curPkg.n}</strong> — adjust to customize`;
+  // Form summary
+  updateFormSummary();
+  setStep(3);
+  setTimeout(()=>document.getElementById('builder').scrollIntoView({behavior:'smooth',block:'start'}),220);
+}
+
+function clearPkg(){
+  curPkg=null;
+  document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('sel-pkg'));
+  document.getElementById('pkgBanner').classList.remove('show');
+  const sync=document.getElementById('qbSync');
+  sync.className='qb-sync empty';
+  sync.innerHTML='💡 Select a package above to auto-fill the calculator';
+  document.getElementById('formPkgSummary').style.display='none';
+}
+
+/* ── SERVICE-AWARE BUILDER CONFIG ── */
+const QB_CONFIG = {
+  events:{
+    steppers:[
+      {id:'hrs', lbl:'Coverage hours',  min:2,  max:16,  val:6,  unit:'hr',     slider:true, step:1},
+      {id:'days',lbl:'Number of days',  min:1,  max:7,   val:1,  unit:'day'},
+      {id:'help',lbl:'Helpers',         min:0,  max:8,   val:0,  unit:'helper', slider:true, step:1},
+      {id:'reels',lbl:'Social reels',   min:0,  max:20,  val:0,  unit:'reel',   slider:true, step:1},
+    ],
+    toggles:[
+      {id:'photo',lbl:'Photography',on:true,rate:175,unit:'hr'},
+      {id:'video',lbl:'Videography',on:true,rate:225,unit:'hr'},
+      {id:'drone',lbl:'Drone',on:false,flat:300},
+      {id:'light',lbl:'Multi-light setup',on:false,flat:300},
+      {id:'intv',lbl:'Interview rig + mics',on:false,flat:150},
+      {id:'recap',lbl:'Highlight video',on:false,flat:350},
+      {id:'sameday',lbl:'Same-day teaser',on:false,flat:150},
+      {id:'setup',lbl:'Setup / site visit',on:false,flat:300},
+      {id:'travel',lbl:'Travel fee (15+ miles +$50)',on:false,flat:50},
+      {id:'rush',lbl:'Rush delivery',on:false,pct:25,gold:true},
+    ],
+    calc(s,pkgActive,modified){
+      const items=[];
+      const hrs=s.hrs,days=s.days,help=s.help,reels=s.reels;
+      if(s.photo&&s.video){
+        items.push({l:`Photography: ${hrs}h × ${days}d @ $175/hr`,v:hrs*days*175});
+        items.push({l:`Videography: ${hrs}h × ${days}d @ $225/hr`,v:hrs*days*225});
+      } else if(s.photo) {
+        items.push({l:`Photography: ${hrs}h × ${days}d @ $175/hr`,v:hrs*days*175});
+      } else if(s.video) {
+        items.push({l:`Videography: ${hrs}h × ${days}d @ $225/hr`,v:hrs*days*225});
+      }
+      if((s.photo||s.video)&&(!pkgActive||modified)){
+        const eh=Math.round(hrs*days*1.4),er=(s.photo&&s.video)?55:s.video?55:45;
+        items.push({l:`Editing: ~${eh}h @ $${er}/hr`,v:eh*er});
+      }
+      if(help>0) items.push({l:`${help} helper${help>1?'s':''} × ${hrs}h × ${days}d @ $100/hr`,v:help*hrs*days*100});
+      if(reels>0){
+        const rv=reels<=1?50:reels<=3?125:reels<=6?225:225+(reels-6)*35;
+        items.push({l:`${reels} social reel${reels>1?'s':''} ($50 · 3 for $125 · 6 for $225)`,v:rv,cls:'highlight'});
+      }
+      if(s.drone) items.push({l:'Drone coverage (flat rate)',v:300,cls:'highlight'});
+      if(s.light) items.push({l:'Multi-light setup',v:300,cls:'highlight'});
+      if(s.intv)  items.push({l:'Interview rig + mics',v:150,cls:'highlight'});
+      if(s.recap) items.push({l:`Highlight video edit (${hrs<=4?'up to 4h':hrs<=8?'up to 8h':'8h+'})`,v:hrs<=4?300:hrs<=8?400:600,cls:'highlight'});
+      if(s.sameday) items.push({l:'Same-day social teaser',v:150,cls:'highlight'});
+      if(s.setup) items.push({l:'Setup / site visit fee',v:300});
+      let sub=items.reduce((a,i)=>a+i.v,0),disc=0,dn='';
+      if(days>=5){disc=Math.round(sub*.2);dn='Multi-day 5+ days: 20% discount';}
+      else if(days===4){disc=Math.round(sub*.15);dn='Multi-day 4 days: 15% discount';}
+      else if(days===3){disc=Math.round(sub*.10);dn='Multi-day 3 days: 10% discount';}
+      let total=sub-disc;
+      if(s.rush){const rf=Math.round(total*.25);items.push({l:'Rush delivery +25%',v:rf,cls:'rush'});total+=rf;}
+      return{items,disc,dn,total};
+    }
+  },
+  weddings:{
+    steppers:[
+      {id:'hrs',lbl:'Coverage hours',min:4,max:12,val:8,unit:'hr'},
+      {id:'reels',lbl:'Social reels',min:0,max:8,val:0,unit:'reel'},
+    ],
+    toggles:[
+      {id:'photo',lbl:'Photography',on:true,rate:175,unit:'hr'},
+      {id:'video',lbl:'Videography',on:true,rate:225,unit:'hr'},
+      {id:'drone',lbl:'Drone',on:false,flat:300},
+      {id:'engage',lbl:'Engagement session',on:false,flat:350},
+      {id:'recap',lbl:'Highlight film',on:true,flat:400},
+      {id:'sameday',lbl:'Same-day sneak peek',on:false,flat:150},
+      {id:'raw',lbl:'Raw files',on:false,flat:200},
+      {id:'second',lbl:'Second shooter',on:false,flat:300},
+      {id:'travel',lbl:'Travel fee (15+ miles +$50)',on:false,flat:50},
+      {id:'rush',lbl:'Rush delivery',on:false,pct:25,gold:true},
+    ],
+    calc(s,pkgActive,modified){
+      const items=[];
+      const hrs=s.hrs,reels=s.reels;
+      if(s.photo&&s.video){
+        items.push({l:`Photography: ${hrs}h @ $175/hr`,v:hrs*175});
+        items.push({l:`Videography: ${hrs}h @ $225/hr`,v:hrs*225});
+      } else if(s.photo){
+        items.push({l:`Photography: ${hrs}h @ $175/hr`,v:hrs*175});
+      } else if(s.video){
+        items.push({l:`Videography: ${hrs}h @ $225/hr`,v:hrs*225});
+      }
+      if((s.photo||s.video)&&(!pkgActive||modified)){
+        const eh=Math.round(hrs*1.6),er=s.video?55:45;
+        items.push({l:`Editing: ~${eh}h @ $${er}/hr`,v:eh*er});
+      }
+      if(reels>0){
+        const rv=reels<=1?50:reels<=3?125:reels<=6?225:225+(reels-6)*35;
+        items.push({l:`${reels} social reel${reels>1?'s':''} ($50 · 3 for $125 · 6 for $225)`,v:rv,cls:'highlight'});
+      }
+      if(s.drone) items.push({l:'Drone aerial coverage',v:300,cls:'highlight'});
+      if(s.engage) items.push({l:'Engagement session add-on',v:350,cls:'highlight'});
+      if(s.recap) items.push({l:`Highlight film edit (${hrs<=6?'up to 6h':hrs<=8?'up to 8h':'8h+'})`,v:hrs<=6?400:hrs<=8?550:700,cls:'highlight'});
+      if(s.sameday) items.push({l:'Same-day sneak peek (5 photos)',v:150,cls:'highlight'});
+      if(s.raw) items.push({l:'Raw footage delivery',v:200});
+      if(s.second) items.push({l:'Second shooter',v:300,cls:'highlight'});
+      let total=items.reduce((a,i)=>a+i.v,0);
+      if(s.rush){const rf=Math.round(total*.25);items.push({l:'Rush delivery +25%',v:rf,cls:'rush'});total+=rf;}
+      return{items,disc:0,dn:'',total};
+    }
+  },
+  sports:{
+    steppers:[
+      {id:'hrs',lbl:'Coverage hours',min:1,max:8,val:3,unit:'hr'},
+      {id:'reels',lbl:'Social reels',min:0,max:8,val:0,unit:'reel'},
+    ],
+    toggles:[
+      {id:'photo',lbl:'Photography',on:true,rate:175,unit:'hr'},
+      {id:'video',lbl:'Videography',on:true,rate:225,unit:'hr'},
+      {id:'drone',lbl:'Drone add-on',on:false,flat:200},
+      {id:'warmup',lbl:'Warmup coverage',on:false,flat:150},
+      {id:'recap',lbl:'Highlight video',on:false,flat:300},
+      {id:'spotlight',   lbl:'Athlete spotlight add-on',    on:false,flat:80},
+      {id:'mediaday',    lbl:'Team media day',               on:false,flat:null},
+      {id:'parentstore', lbl:'📦 Parent purchase link',      on:false,flat:0},
+      {id:'travel',      lbl:'Travel fee (15+ miles +$50)',  on:false,flat:50},
+      {id:'rush48',      lbl:'Rush 48hr (+$100)',            on:false,flat:100,gold:true},
+      {id:'rush',        lbl:'Rush +25%',                    on:false,pct:25,gold:true},
+    ],
+    /* mediaday sub-options rendered dynamically */
+    mediaDayConfig:{
+      tiers:[
+        {id:'basic_s', lbl:'Basic — Small (≤12 athletes)', price:540, desc:'Team photo · 1 posed look/athlete · Basic lighting'},
+        {id:'basic_m', lbl:'Basic — Medium (13–20 athletes)', price:720, desc:'Team photo · 1 posed look/athlete · Basic lighting'},
+        {id:'basic_l', lbl:'Basic — Large (21–30 athletes)', price:900, desc:'Team photo · 1 posed look/athlete · Basic lighting'},
+        {id:'pro_s',   lbl:'Pro — Small (≤12 athletes)', price:900,  desc:'Team photo · 2–3 selects/athlete · Coach photo · Poster-ready'},
+        {id:'pro_m',   lbl:'Pro — Medium (13–20 athletes)', price:1260, desc:'Team photo · 2–3 selects/athlete · Coach photo · Poster-ready'},
+        {id:'pro_l',   lbl:'Pro — Large (21–30 athletes)', price:1620, desc:'Team photo · 2–3 selects/athlete · Coach photo · Poster-ready'},
+      ],
+      selectedTier: null,
+    },
+    calc(s,pkgActive,modified){
+      const items=[];
+      const hrs=s.hrs,reels=s.reels;
+      if(!s.mediaday){
+        // Game day mode
+        if(s.photo&&s.video){
+          items.push({l:`Photography: ${hrs}h @ $175/hr`,v:hrs*175});
+          items.push({l:`Videography: ${hrs}h @ $225/hr`,v:hrs*225});
+        } else if(s.photo){
+          items.push({l:`Photography: ${hrs}h @ $175/hr`,v:hrs*175});
+        } else if(s.video){
+          items.push({l:`Videography: ${hrs}h @ $225/hr`,v:hrs*225});
+        }
+        if((s.photo||s.video)&&(!pkgActive||modified)){
+          const eh=Math.round(hrs*1.4),er=s.video?55:45;
+          items.push({l:`Editing: ~${eh}h @ $${er}/hr`,v:eh*er});
+        }
+        if(reels>0){
+          const rv=reels<=1?50:reels<=3?125:reels<=5?200:225;
+          items.push({l:`${reels} social reel${reels>1?'s':''} ($50 · 3/$125 · 5/$200)`,v:rv,cls:'highlight'});
+        }
+        if(s.drone) items.push({l:'Drone add-on',v:200,cls:'highlight'});
+        if(s.warmup) items.push({l:'Warmup / pre-game coverage +$150',v:150,cls:'highlight'});
+        if(s.recap) items.push({l:'Highlight video edit',v:300,cls:'highlight'});
+        if(s.spotlight) items.push({l:'Athlete photo spotlight (1 player · 8–16 photos)',v:80,cls:'highlight'});
+        const ath=s.athletes||0;
+        if(ath>0) items.push({l:`${ath} individual athlete spotlight${ath>1?'s':''} @ $80 each`,v:ath*80,cls:'highlight'});
+        if(s.rush48) items.push({l:'Rush delivery (48hr)',v:100,cls:'rush'});
+      } else {
+        // Media day mode — use selected tier
+        const cfg=QB_CONFIG.sports.mediaDayConfig;
+        const tier=cfg.tiers.find(t=>t.id===cfg.selectedTier);
+        if(tier) items.push({l:`Media day: ${tier.lbl}`,v:tier.price,cls:'highlight'});
+        else items.push({l:'Media day — select team size below',v:0});
+        if(reels>0){
+          const rv=reels<=1?50:reels<=3?125:reels<=5?200:225;
+          items.push({l:`${reels} social reel${reels>1?'s':''}`,v:rv,cls:'highlight'});
+        }
+        if(s.drone) items.push({l:'Drone add-on',v:200,cls:'highlight'});
+        if(s.rush48) items.push({l:'Rush delivery (48hr)',v:100,cls:'rush'});
+      }
+      let total=items.reduce((a,i)=>a+i.v,0);
+      if(s.rush){const rf=Math.round(total*.25);items.push({l:'Rush delivery +25%',v:rf,cls:'rush'});total+=rf;}
+      if(s.parentstore) items.push({l:'📦 Parent purchase link included — parents order prints/digitals directly after the shoot (no extra charge to you)',v:null,info:true});
+      return{items,disc:0,dn:'',total};
+    }
+  },
+  commercial:{
+    steppers:[
+      {id:'hrs',lbl:'On-site hours',min:2,max:8,val:3,unit:'hr'},
+      {id:'reels',lbl:'Social reels',min:0,max:6,val:0,unit:'reel'},
+      {id:'headshots',lbl:'Headshots (people)',min:0,max:30,val:0,unit:'person'},
+    ],
+    toggles:[
+      {id:'photo',lbl:'Photography',on:true,rate:175,unit:'hr'},
+      {id:'video',lbl:'Brand video',on:false,rate:225,unit:'hr'},
+      {id:'drone',lbl:'Drone',on:false,flat:300},
+      {id:'light',lbl:'Lighting setup',on:false,flat:300},
+      {id:'intv',lbl:'Interview rig + mics',on:false,flat:150},
+      {id:'advretch',lbl:'Advanced retouching',on:false,flat:0},
+      {id:'travel',lbl:'Travel fee (15+ miles +$50)',on:false,flat:50},
+      {id:'rush',lbl:'Rush delivery',on:false,pct:25,gold:true},
+    ],
+    calc(s,pkgActive,modified){
+      const items=[];
+      const hrs=s.hrs,reels=s.reels,heads=s.headshots||0;
+      if(s.photo&&s.video){
+        items.push({l:`Photography: ${hrs}h @ $175/hr`,v:hrs*175});
+        items.push({l:`Brand videography: ${hrs}h @ $225/hr`,v:hrs*225});
+      } else if(s.photo){
+        items.push({l:`Photography: ${hrs}h @ $175/hr`,v:hrs*175});
+      } else if(s.video){
+        items.push({l:`Brand videography: ${hrs}h @ $225/hr`,v:hrs*225});
+      }
+      if((s.photo||s.video)&&(!pkgActive||modified)){
+        const er=s.video?55:45,eh=Math.round(hrs*1.4);
+        items.push({l:`Editing: ~${eh}h @ $${er}/hr`,v:eh*er});
+      }
+      if(reels>0){
+        const rv=reels<=1?50:reels<=3?125:225;
+        items.push({l:`${reels} social reel${reels>1?'s':''} ($50 · 3/$125 · 6/$225)`,v:rv,cls:'highlight'});
+      }
+      if(heads>0){
+        // Tiered headshot pricing: per-person $55, half-day for teams
+        const hv=heads<=1?55:heads<=5?heads*55:heads<=15?800:1400;
+        const hlbl=heads<=5?`${heads} headshot${heads>1?'s':''} @ $55/person`
+          :heads<=15?`${heads} headshots (half-day rate $800)`
+          :`${heads} headshots (full-day rate $1,400)`;
+        items.push({l:hlbl,v:hv,cls:'highlight'});
+      }
+      if(s.drone) items.push({l:'Drone coverage (flat rate)',v:300,cls:'highlight'});
+      if(s.light) items.push({l:'Multi-light / lighting setup',v:300,cls:'highlight'});
+      if(s.intv)  items.push({l:'Interview rig + mics',v:150,cls:'highlight'});
+      if(s.advretch) items.push({l:'Advanced retouching (commercial) — quoted per photo',v:0,cls:'highlight'});
+      let total=items.reduce((a,i)=>a+i.v,0);
+      if(s.rush){const rf=Math.round(total*.25);items.push({l:'Rush delivery +25%',v:rf,cls:'rush'});total+=rf;}
+      return{items,disc:0,dn:'',total};
+    }
+  },
+  graduation:{
+    steppers:[
+      {id:'mins',lbl:'Session length (min)',min:15,max:120,val:30,unit:'min'},
+      {id:'people',lbl:'Number of people',min:1,max:8,val:1,unit:'person'},
+      {id:'locations',lbl:'Locations',min:1,max:4,val:1,unit:'loc'},
+    ],
+    toggles:[
+      {id:'photo',lbl:'Photos',on:true,flat:null},
+      {id:'video',lbl:'Video reel',on:false,flat:50},
+      {id:'ceremony',lbl:'Ceremony coverage',on:false,flat:1800},
+      {id:'drone',lbl:'Drone',on:false,flat:300},
+      {id:'travel',lbl:'Travel fee (15+ miles +$50)',on:false,flat:50},
+      {id:'rush',lbl:'Rush delivery',on:false,pct:25,gold:true},
+    ],
+    calc(s,pkgActive,modified){
+      const items=[];
+      const mins=s.mins||30,people=s.people||1,locs=s.locations||1;
+      if(s.photo){
+        // Base session price by length
+        let base;
+        if(mins<=15) base=175;
+        else if(mins<=25) base=250;
+        else if(mins<=60) base=275;
+        else base=275+Math.floor((mins-60)/30)*50;
+        items.push({l:`Portrait session (${mins} min)`,v:base});
+        // Extra people: +$50 for 3 or fewer total, +$75 for more than 3
+        if(people>1){
+          const extra=people-1;
+          if(people<=3){
+            items.push({l:`${extra} extra person${extra>1?'s':''} @ $50/person`,v:extra*50});
+          } else {
+            // first 2 extras at $50, rest at $75
+            const at50=2, at75=extra-2;
+            items.push({l:'2 extra people @ $50/person',v:100});
+            if(at75>0) items.push({l:`${at75} extra person${at75>1?'s':''} @ $75/person (group rate)`,v:at75*75});
+          }
+        }
+        if(locs>1) items.push({l:`${locs-1} extra location${locs>1?'s':''} @ $50 each`,v:(locs-1)*50});
+      }
+      if(s.video) items.push({l:'Social media reel (15–30s vertical)',v:50,cls:'highlight'});
+      if(s.ceremony) items.push({l:'Ceremony coverage — standard (3 hrs · photo + video)',v:1800,cls:'highlight'});
+      if(s.drone) items.push({l:'Drone coverage',v:300,cls:'highlight'});
+      let total=items.reduce((a,i)=>a+i.v,0);
+      if(s.rush){const rf=Math.round(total*.25);items.push({l:'Rush delivery +25%',v:rf,cls:'rush'});total+=rf;}
+      return{items,disc:0,dn:'',total};
+    }
+  },
+  realestate:{
+    steppers:[
+      {id:'rooms',lbl:'Rooms / areas',min:1,max:20,val:5,unit:'room'},
+      {id:'units',lbl:'Units / buildings',min:1,max:5,val:1,unit:'unit'},
+    ],
+    toggles:[
+      {id:'interior',lbl:'Interior photos',on:true,flat:null},
+      {id:'exterior',lbl:'Exterior photos',on:true,flat:100},
+      {id:'drone',lbl:'Drone aerial',on:false,flat:300},
+      {id:'video',lbl:'Walkthrough video',on:false,flat:250},
+      {id:'virtual',lbl:'Virtual tour',on:false,flat:150},
+      {id:'advretch',lbl:'Advanced retouching',on:false,flat:0},
+      {id:'travel',lbl:'Travel fee (15+ miles +$50)',on:false,flat:50},
+      {id:'rush',lbl:'Rush delivery (24hr)',on:false,flat:100,gold:true},
+    ],
+    calc(s,pkgActive,modified){
+      const items=[];
+      const rooms=s.rooms||5,units=s.units||1;
+      if(s.interior){
+        const base=rooms<=5?270:rooms<=10?400:rooms<=15?550:600;
+        items.push({l:`Interior photography (${rooms} room${rooms>1?'s':''})`,v:base*units});
+        if(!pkgActive||modified){
+          const eh=Math.round(rooms*0.7);
+          items.push({l:`Photo editing: ~${eh}h @ $45/hr`,v:eh*45});
+        }
+      }
+      if(s.exterior) items.push({l:`Exterior photography (${units} unit${units>1?'s':''})`,v:100*units});
+      if(s.drone) items.push({l:'Drone aerial photos + video',v:300,cls:'highlight'});
+      if(s.video) items.push({l:`Walkthrough video tour (${units} unit${units>1?'s':''})`,v:250*units,cls:'highlight'});
+      if(s.virtual) items.push({l:'Virtual tour',v:150,cls:'highlight'});
+      if(s.advretch) items.push({l:'Advanced retouching (object removal) — $25–$75/photo, quoted separately',v:0,cls:'highlight'});
+      let total=items.reduce((a,i)=>a+i.v,0);
+      if(s.rush){items.push({l:'24-hour rush delivery',v:100,cls:'rush'});total+=100;}
+      return{items,disc:0,dn:'',total};
+    }
+  },
+  workshop:{
+    steppers:[
+      {id:'hrs',lbl:'Workshop hours',min:1,max:8,val:4,unit:'hr'},
+      {id:'days',lbl:'Number of sessions',min:1,max:8,val:1,unit:'session'},
+      {id:'attendees',lbl:'Attendees',min:5,max:50,val:20,unit:'person'},
+    ],
+    toggles:[
+      {id:'photo',lbl:'Photography basics',on:true,flat:null},
+      {id:'video',lbl:'Videography',on:false,flat:null},
+      {id:'mobile',lbl:'iPhone / mobile',on:false,flat:null},
+      {id:'drone',lbl:'Drone basics',on:false,flat:150},
+      {id:'social',lbl:'Social media strategy',on:false,flat:null},
+      {id:'materials',lbl:'Printed materials',on:false,flat:100},
+      {id:'certs',lbl:'Certificates',on:false,flat:null},
+      {id:'record',lbl:'Record workshop',on:false,flat:350},
+      {id:'curriculum',lbl:'Curriculum creation (+$120)',on:false,flat:120},
+      {id:'travel',lbl:'Travel fee (15+ miles +$50)',on:false,flat:50},
+    ],
+    calc(s,pkgActive,modified){
+      const items=[];
+      const hrs=s.hrs,sessions=s.days||1,people=s.attendees||20;
+      const topics=[s.photo,s.video,s.mobile,s.social].filter(Boolean).length||1;
+      // Base rate by length
+      const baseRate=hrs<=2?700:hrs<=4?1350:2250;
+      // Multi-session discount applied later
+      const singleRate=baseRate;
+      items.push({l:`${hrs}h workshop × ${sessions} session${sessions>1?'s':''} (${topics} topic${topics>1?'s':''})`,v:singleRate*sessions});
+      // Extra attendees beyond package cap
+      const cap=hrs<=2?30:hrs<=4?25:20;
+      if(people>cap) items.push({l:`${people-cap} extra attendee${people-cap>1?'s':''} @ $25/person`,v:(people-cap)*25});
+      if(s.drone) items.push({l:'Drone demo session add-on',v:150,cls:'highlight'});
+      if(s.materials) items.push({l:'Printed handouts + materials',v:100,cls:'highlight'});
+      if(s.certs) items.push({l:`Certificates: ${people} attendees @ $8/person`,v:people*8});
+      if(s.record) items.push({l:'Workshop recording + delivery',v:350,cls:'highlight'});
+      // Curriculum creation for new topic
+      if(s.curriculum) items.push({l:'Curriculum creation: 3h @ $40/hr',v:120});
+      let sub=items.reduce((a,i)=>a+i.v,0);
+      let disc=0,dn='';
+      if(sessions>=4){disc=Math.round(sub*.10);dn='4+ session series discount (10%)';}
+      const total=sub-disc;
+      return{items,disc,dn,total};
+    }
+  },
+  schoolportraits:{
+    steppers:[
+      {id:'students',lbl:'Number of students',  min:50,  max:2000, val:500, unit:'student', slider:true, step:50},
+      {id:'days',    lbl:'Days available',       min:1,   max:5,    val:1,   unit:'day'},
+      {id:'hrs',     lbl:'Shooting hours/day',   min:4,   max:10,   val:7,   unit:'hr',      slider:true, step:1},
+    ],
+    toggles:[
+      {id:'idprint',   lbl:'On-site ID printing (+$150/day)',   on:false,flat:150},
+      {id:'senior',    lbl:'Senior portrait mode (12/hr pace)',  on:false,flat:0},
+      {id:'parentstore',lbl:'📦 Parent purchase link',           on:false,flat:0},
+    ],
+    calc(s,pkgActive,modified){
+      // ── Constants ──
+      const LEAD=400,SHOOTER=200,ASSIST=100,ID_FEE=150;
+      const pace=s.senior?12:52;
+      const students=s.students||500;
+      const days=s.days||1;
+      const hrs=s.hrs||7;
+
+      // ── Staffing formula ──
+      const capacityPerPhotog=pace*hrs;
+      const capacityOneDay=capacityPerPhotog*days;
+      const photographers=Math.ceil(students/(capacityPerPhotog*days));
+      const assistants=photographers;
+
+      // ── Cost formula ──
+      const leadCost=LEAD*days;
+      const shooterCost=(photographers-1)*SHOOTER*days;
+      const assistCost=assistants*ASSIST*days;
+      const idCost=s.idprint?ID_FEE*days:0;
+      const staffTotal=leadCost+shooterCost+assistCost+idCost;
+
+      // ── Parent package revenue context ──
+      const pkgPrice=pkgActive&&curPkg?curPkg.base:45;
+      const commission=pkgActive&&curPkg?Math.round(pkgPrice*0.2):9;
+      const gross=pkgPrice*students;
+      const totalCommission=commission*students;
+      const netRevenue=gross-totalCommission;
+
+      // ── Alert logic ──
+      let alertMsg='',alertCls='';
+      if(photographers>4){
+        alertMsg=`⚠ ${photographers} photographers needed — consider adding more days to reduce crew size.`;
+        alertCls='rush';
+      } else if(photographers===1){
+        alertMsg='✓ Solo job — you can handle this alone!';
+        alertCls='highlight';
+      }
+
+      const items=[];
+      // Staffing costs (your cost to execute the job)
+      items.push({l:'── YOUR STAFFING COSTS ──',v:null,info:true});
+      items.push({l:`Lead photographer (you) × ${days}d @ $${LEAD}/day`,v:leadCost});
+      if(photographers>1) items.push({l:`${photographers-1} additional photographer${photographers>2?'s':''} × ${days}d @ $${SHOOTER}/day`,v:shooterCost});
+      items.push({l:`${assistants} check-in assistant${assistants>1?'s':''} × ${days}d @ $${ASSIST}/day`,v:assistCost});
+      if(s.idprint) items.push({l:`On-site ID printing × ${days}d @ $${ID_FEE}/day`,v:idCost,cls:'highlight'});
+
+      // Revenue context
+      items.push({l:'── REVENUE CONTEXT ──',v:null,info:true});
+      items.push({l:`${students} students × $${pkgPrice}/pkg (gross)`,v:gross,cls:'highlight'});
+      items.push({l:`School commission (${Math.round(commission/pkgPrice*100)}% × ${students} students) deducted`,v:totalCommission,cls:'disc'});
+      items.push({l:`Net revenue after commission`,v:netRevenue,cls:'highlight'});
+
+      // Staffing capacity info
+      items.push({l:`Capacity: ${photographers} photog${photographers>1?'s':''} × ${capacityPerPhotog} students/day × ${days}d = ${capacityOneDay*photographers} students`,v:null,info:true});
+      items.push({l:`Pace: ${pace} students/hr (${s.senior?'senior':'standard'} mode)`,v:null,info:true});
+      if(alertMsg) items.push({l:alertMsg,v:null,cls:alertCls,info:false});
+      if(s.parentstore) items.push({l:'📦 Parent purchase link: After picture day, parents receive a unique link to buy prints, packages & digitals directly. You set prices and collect revenue minus lab costs.',v:null,info:true});
+
+      const total=staffTotal;
+      return{items,disc:0,dn:'',total};
+    }
+  },
+  video:{
+    steppers:[
+      {id:'videos',lbl:'Number of videos',min:1,max:10,val:2,unit:'video'},
+      {id:'length',lbl:'Length each (sec)',min:15,max:300,val:30,unit:'sec',slider:true,step:15},
+      {id:'revisions',lbl:'Revision rounds',min:1,max:4,val:1,unit:'round'},
+    ],
+    toggles:[
+      {id:'colorgrade',lbl:'Color grade',on:true,flat:null},
+      {id:'motion',lbl:'Motion text / titles',on:false,flat:null},
+      {id:'sound',lbl:'Sound design',on:false,flat:null},
+      {id:'music',lbl:'Licensed music',on:true,flat:40},
+      {id:'captions',lbl:'Captions / subtitles',on:false,flat:50},
+      {id:'vertical',lbl:'Vertical export (9:16)',on:false,flat:50},
+      {id:'altver',lbl:'Alternate version / cutdown',on:false,flat:75},
+      {id:'aspectexp',lbl:'Extra aspect ratio export',on:false,flat:50},
+      {id:'rush',lbl:'Rush delivery (48hr) +25%',on:false,pct:25,gold:true},
+    ],
+    calc(s,pkgActive,modified){
+      const items=[];
+      const vids=s.videos||1,secs=s.length||30,revs=s.revisions||1;
+      // Complexity multiplier from toggles
+      let cmx=1;
+      if(s.motion) cmx*=1.3;
+      if(s.sound)  cmx*=1.2;
+      if(s.colorgrade) cmx*=1.1;
+      // Base rate by length
+      const basePerVid=secs<=30?250:secs<=60?350:secs<=120?450:600;
+      const vidCost=Math.round(basePerVid*vids*cmx);
+      // Label explains complexity
+      const cmxParts=[];
+      if(s.colorgrade) cmxParts.push('color grade');
+      if(s.motion)     cmxParts.push('motion text');
+      if(s.sound)      cmxParts.push('sound design');
+      const cmxNote=cmxParts.length?` (${cmxParts.join(' + ')})`:'';
+      items.push({l:`${vids} video${vids>1?'s':''} × ~${secs}s each${cmxNote}`,v:vidCost});
+      if(revs>1) items.push({l:`${revs-1} extra revision round${revs>2?'s':''} @ $75/round`,v:(revs-1)*75});
+      if(s.music) items.push({l:`Licensed music: ${vids} track${vids>1?'s':''} @ $40 each`,v:40*vids,cls:'highlight'});
+      if(s.captions) items.push({l:`Captions/subtitles: ${vids} video${vids>1?'s':''} @ $50 each`,v:50*vids,cls:'highlight'});
+      if(s.vertical)  items.push({l:`Vertical 9:16 export: ${vids} video${vids>1?'s':''} @ $50 each`,v:50*vids,cls:'highlight'});
+      if(s.altver)    items.push({l:'Alternate version / cutdown @ $75/hr',v:75,cls:'highlight'});
+      if(s.aspectexp) items.push({l:`Additional aspect ratio exports: ${vids} × $50`,v:vids*50,cls:'highlight'});
+      let total=items.reduce((a,i)=>a+i.v,0);
+      if(s.rush){const rf=Math.round(total*.25);items.push({l:'Rush delivery (48hr) +25%',v:rf,cls:'rush'});total+=rf;}
+      return{items,disc:0,dn:'',total};
+    }
+  },
+};
+
+let qbState={};
+
+function renderBuilder(svc){
+  const cfg=QB_CONFIG[svc]||QB_CONFIG.events;
+  qbState={};
+  cfg.steppers.forEach(s=>qbState[s.id]=s.val);
+  cfg.toggles.forEach(t=>qbState[t.id]=t.on);
+
+  const card=document.getElementById('qbCard');
+  let html='';
+
+  // Steppers
+  html+='<div class="qb-label">Adjust your session</div>';
+  html+='<div class="qb-steppers">';
+  cfg.steppers.forEach(s=>{
+    const isSlider=s.slider===true;
+    const step=s.step||1;
+    const wideClass=isSlider?' wide':'';
+    if(isSlider){
+      html+=`<div class="qb-stepper${wideClass}">
+        <div class="qb-stepper-lbl">${s.lbl}</div>
+        <div class="qb-slider-wrap">
+          <div class="qb-slider-top">
+            <div class="qb-slider-val" id="qbs-${s.id}">${formatStepVal(s.val,s.unit)}</div>
+          </div>
+          <input type="range" class="qb-range" id="qbr-${s.id}"
+            min="${s.min}" max="${s.max||999}" step="${step}" value="${s.val}"
+            oninput="sliderAdj('${s.id}',this.value)" />
+          <div class="qb-slider-minmax"><span>${s.min.toLocaleString()} ${s.unit}</span><span>${(s.max||999).toLocaleString()} ${s.unit}</span></div>
+        </div>
+      </div>`;
+    } else {
+      html+=`<div class="qb-stepper${wideClass}">
+        <div class="qb-stepper-lbl">${s.lbl}</div>
+        <div class="qb-stepper-row">
+          <button class="qb-btn" onclick="stepperAdj('${s.id}',${s.min},${s.max||99},-1)" type="button">−</button>
+          <div class="qb-stepper-val" id="qbs-${s.id}">${formatStepVal(s.val,s.unit)}</div>
+          <button class="qb-btn" onclick="stepperAdj('${s.id}',${s.min},${s.max||99},1)" type="button">+</button>
+        </div>
+      </div>`;
+    }
+  });
+  html+='</div>';
+
+  // Toggles
+  html+='<div class="qb-label" style="margin-top:.25rem;">Add-ons &amp; options</div>';
+  html+='<div class="qb-toggles">';
+  cfg.toggles.forEach(t=>{
+    html+=`<div class="qb-tog${t.on?' on':''}${t.gold?' gold':''}" id="qbt-${t.id}" onclick="toggleAdj('${t.id}')">${t.lbl}</div>`;
+  });
+  html+='</div>';
+
+  // Result
+  html+=`<div class="qb-result">
+    <div class="qb-label" style="margin-bottom:.6rem;">Live estimate</div>
+    <div class="qb-rows" id="qbRows"></div>
+    <div class="qb-total"><div class="qb-total-lbl" id="qbTotalLbl">Subtotal</div><div class="qb-total-num" id="qbTotal">$0</div></div>
+    <div class="qb-fees" id="qbFees">
+      <div class="qb-fee-toggle">
+        <label><input type="checkbox" id="feeToggle" onchange="qbCalc()"> Show processing fee (Stripe / card)</label>
+      </div>
+      <div id="qbFeeRows"></div>
+      <div class="qb-fee-row total-final" id="qbGrandRow" style="display:none;">
+        <span>Total with processing fee</span><span id="qbGrandTotal">$0</span>
+      </div>
+    </div>
+    <div class="qb-note" id="qbNote"></div>
+  </div>`;
+
+  card.innerHTML=html;
+  // For sports: if mediaday toggle is on, show tier selector
+  if(svc==='sports') renderMediaDaySelector();
+  qbCalc();
+}
+
+function renderMediaDaySelector(){
+  const existing=document.getElementById('mediaDaySelector');
+  if(existing) existing.remove();
+  if(!qbState.mediaday) return;
+  const cfg=QB_CONFIG.sports.mediaDayConfig;
+  const div=document.createElement('div');
+  div.id='mediaDaySelector';
+  div.style.cssText='margin-bottom:1.25rem;';
+  div.innerHTML=`
+    <div class="qb-label">Select team size &amp; tier</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${cfg.tiers.map(t=>`
+        <div onclick="selectMediaTier('${t.id}')" style="
+          padding:.85rem 1rem;border-radius:12px;cursor:pointer;
+          border:1.5px solid ${cfg.selectedTier===t.id?'var(--gold)':'var(--border)'};
+          background:${cfg.selectedTier===t.id?'var(--cream2)':'var(--cream)'};
+          transition:all .18s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+          display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:13px;font-weight:${cfg.selectedTier===t.id?'600':'400'};color:var(--text);">${t.lbl}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${t.desc}</div>
+          </div>
+          <div style="font-size:16px;font-weight:600;color:${cfg.selectedTier===t.id?'var(--gold3)':'var(--text)'};">$${t.price.toLocaleString()}</div>
+        </div>`).join('')}
+    </div>`;
+  // Insert before result div
+  const result=document.querySelector('.qb-result');
+  if(result) result.parentNode.insertBefore(div,result);
+}
+
+function selectMediaTier(id){
+  QB_CONFIG.sports.mediaDayConfig.selectedTier=id;
+  renderMediaDaySelector();
+  qbCalc();
+}
+
+function formatStepVal(val,unit){
+  if(val===0) return 'None';
+  const u=val===1?unit:(unit==='hr'?'hrs':unit==='min'?'min':unit==='session'?'sessions':unit==='loc'?'locs':unit+'s');
+  return `${val} ${u}`;
+}
+
+function stepperAdj(id,min,max,delta){
+  const cfg=QB_CONFIG[curSvc]||QB_CONFIG.events;
+  const s=cfg.steppers.find(x=>x.id===id);
+  if(!s) return;
+  const newVal=Math.min(max,Math.max(min,(qbState[id]||s.val)+delta));
+  qbState[id]=newVal;
+  const el=document.getElementById('qbs-'+id);
+  if(el) el.textContent=formatStepVal(newVal,s.unit);
+  qbCalc();
+}
+
+function sliderAdj(id,val){
+  const cfg=QB_CONFIG[curSvc]||QB_CONFIG.events;
+  const s=cfg.steppers.find(x=>x.id===id);
+  if(!s) return;
+  const parsed=parseInt(val);
+  qbState[id]=parsed;
+  const el=document.getElementById('qbs-'+id);
+  if(el) el.textContent=formatStepVal(parsed,s.unit);
+  qbCalc();
+}
+
+function toggleAdj(id){
+  qbState[id]=!qbState[id];
+  const el=document.getElementById('qbt-'+id);
+  if(el) el.classList.toggle('on',qbState[id]);
+  if(curSvc==='sports' && id==='mediaday') renderMediaDaySelector();
+  qbCalc();
+}
+
+function setBuilderFromPkg(p){
+  // Render builder for the service first
+  renderBuilder(curSvc);
+  const cfg=QB_CONFIG[curSvc]||QB_CONFIG.events;
+  // Map package properties to steppers
+  if(p.hrs!==undefined) qbState.hrs=Math.max(1,Math.round(p.hrs));
+  if(p.days!==undefined) qbState.days=Math.max(1,Math.min(7,p.days));
+  if(p.help!==undefined) qbState.help=p.help;
+  if(p.reels!==undefined) qbState.reels=p.reels;
+  // Map toggles
+  const tmap={photo:'photo',video:'video',drone:'drone',light:'light',intv:'intv',recap:'recap',sameday:'sameday',setup:'setup'};
+  Object.entries(tmap).forEach(([pk,tk])=>{
+    if(p[pk]!==undefined&&qbState.hasOwnProperty(tk)) qbState[tk]=p[pk];
+  });
+  qbState.rush=false;
+  // Update stepper displays
+  cfg.steppers.forEach(s=>{
+    const el=document.getElementById('qbs-'+s.id);
+    if(el) el.textContent=formatStepVal(qbState[s.id]||s.val,s.unit);
+    const rangeEl=document.getElementById('qbr-'+s.id);
+    if(rangeEl) rangeEl.value=qbState[s.id]||s.val;
+  });
+  // Update toggle displays
+  cfg.toggles.forEach(t=>{
+    const el=document.getElementById('qbt-'+t.id);
+    if(el) el.classList.toggle('on',!!qbState[t.id]);
+  });
+  // Store package defaults to detect modifications later
+  curPkgDefaults={...qbState};
+  qbCalc();
+}
+
+function renderDQ(svc){
+  const qs=DQ[svc]||[];
+  ['dq1','dq2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    const q=qs[i];
+    if(!q){el.innerHTML='';return;}
+    if(q.t==='text') el.innerHTML=`<label class="q-lbl">${q.l}</label><input class="q-input" type="text" id="${id}-val" placeholder="${q.ph||''}">`;
+    else if(q.t==='select') el.innerHTML=`<label class="q-lbl">${q.l}</label><select class="q-select" id="${id}-val"><option value="">Select one</option>${q.o.map(o=>`<option>${o}</option>`).join('')}</select>`;
+    else if(q.t==='chips') el.innerHTML=`<label class="q-lbl">${q.l}</label><div class="chips" id="${id}-val">${q.o.map(o=>`<div class="chip" onclick="tog(this)">${o}</div>`).join('')}</div>`;
+  });
+}
+
+/* ── QUOTE BUILDER CALC ── */
+function isModified(){
+  if(!curPkg||Object.keys(curPkgDefaults).length===0) return false;
+  return Object.keys(curPkgDefaults).some(k=>qbState[k]!==curPkgDefaults[k]);
+}
+function qbCalc(){
+  const cfg=QB_CONFIG[curSvc]||QB_CONFIG.events;
+  const pkgActive=!!curPkg;
+  const modified=isModified();
+
+  let items=[], disc=0, dn='', total=0;
+
+  if(pkgActive && !modified){
+    // ── PACKAGE SELECTED, UNMODIFIED: show flat package price ──
+    const pkgBase=curPkg.base||0;
+    total=pkgBase;
+    items=[{l:`${curPkg.n} — package price`,v:pkgBase,cls:'highlight'}];
+    // List what's included as sub-lines (no price, just info)
+    curPkg.i.forEach(inc=>items.push({l:`  ✓ ${inc}`,v:null,info:true}));
+  } else {
+    // ── NO PACKAGE OR MODIFIED: calculate line by line ──
+    const result=cfg.calc(qbState,pkgActive,modified);
+    items=result.items; disc=result.disc; dn=result.dn; total=result.total;
+  }
+
+  // Universal: travel fee (always added if toggled, even on package)
+  const travelEl=document.getElementById('qbt-travel');
+  if(travelEl&&travelEl.classList.contains('on')){
+    items=[...items,{l:'Travel fee (15+ miles)',v:50}];
+    total+=50;
+  }
+
+  const rows=document.getElementById('qbRows');
+  if(!rows) return;
+
+  rows.innerHTML=
+    items.map(i=>
+      i.info
+        ? `<div class="qbr" style="color:var(--muted);font-size:12px;padding-left:8px;font-style:italic;"><span>${i.l}</span></div>`
+        : `<div class="qbr ${i.cls||''}"><span>${i.l}</span>${
+            (i.v!==null&&i.v!==undefined)
+              ? `<span>${i.cls==='disc'?'−':''}$${Math.abs(i.v).toLocaleString()}</span>`
+              : ''
+          }</div>`
+    ).join('')+
+    (disc?`<div class="qbr disc"><span>${dn}</span><span>−$${disc.toLocaleString()}</span></div>`:'');
+
+  const tot=document.getElementById('qbTotal');
+  if(tot) tot.textContent='$'+total.toLocaleString();
+  const totLbl=document.getElementById('qbTotalLbl');
+  if(totLbl) totLbl.textContent=curSvc==='schoolportraits'?'Your staffing cost':'Subtotal';
+
+  // Processing fee section
+  const feeToggle=document.getElementById('feeToggle');
+  const feeRows=document.getElementById('qbFeeRows');
+  const grandRow=document.getElementById('qbGrandRow');
+  const grandTot=document.getElementById('qbGrandTotal');
+  if(feeToggle&&feeRows&&grandRow&&grandTot){
+    if(feeToggle.checked&&total>0){
+      // Stripe: 2.9% + $0.30
+      const stripeFee=Math.round((total*0.029+0.30)*100)/100;
+      // Rounded to cents
+      const grandTotal=Math.round((total+stripeFee)*100)/100;
+      feeRows.innerHTML=`
+        <div class="qb-fee-row fee"><span>Stripe processing fee (2.9% + $0.30)</span><span>+$${stripeFee.toFixed(2)}</span></div>`;
+      grandRow.style.display='flex';
+      grandTot.textContent='$'+grandTotal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+      curEstimate=grandTotal;
+    } else {
+      feeRows.innerHTML='';
+      grandRow.style.display='none';
+      curEstimate=total;
+    }
+  } else {
+    curEstimate=total;
+  }
+
+  const note=document.getElementById('qbNote');
+  let noteText='Estimate — final price confirmed after your inquiry.';
+  if(pkgActive&&!modified) noteText='✓ Flat package price. Adjust any option above to switch to a custom quote.';
+  if(pkgActive&&modified)  noteText='⚠ Customized from package — line-item pricing now shown. Package editing fees apply.';
+  if(note) note.textContent=noteText;
+
+  curBreakdown=items.filter(i=>i.v!==null&&i.v!==undefined).map(i=>`${i.l}: $${Math.abs(i.v).toLocaleString()}`).join('\n')
+    +(disc?`\nDiscount: −$${disc.toLocaleString()}`:'')
+    +(document.getElementById('feeToggle')?.checked?`\nStripe fee (2.9%+$0.30): +$${(curEstimate-total).toFixed(2)}`:'');
+  updateFormSummary();
+}
+
+function updateFormSummary(){
+  const el=document.getElementById('formPkgSummary');
+  if(curPkg){
+    el.style.display='block';
+    document.getElementById('fps-svc').textContent=curSvc?curSvc.charAt(0).toUpperCase()+curSvc.slice(1):'—';
+    document.getElementById('fps-pkg').textContent=curPkg.n;
+    document.getElementById('fps-total').textContent=curEstimate>0?'$'+curEstimate.toLocaleString()+' (estimated)':curPkg.p;
+  } else {
+    el.style.display='none';
+  }
+}
+
+function tog(el){el.classList.toggle('on');}
+
+function getChips(id){
+  const el=document.getElementById(id);
+  if(!el) return '';
+  return Array.from(el.querySelectorAll('.chip.on')).map(c=>c.textContent).join(', ');
+}
+
+/* ── FORM SUBMIT ── */
+async function submitForm(e){
+  e.preventDefault();
+  const fname=document.getElementById('f-fname').value.trim();
+  const lname=document.getElementById('f-lname').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const date=document.getElementById('f-date').value.trim();
+  const loc=document.getElementById('f-location').value.trim();
+  const desc=document.getElementById('f-description').value.trim();
+  const budget=document.getElementById('f-budget').value;
+  const deliverables=getChips('chips-deliverables');
+  const source=getChips('chips-source');
+  const dq1=document.getElementById('dq1-val');
+  const dq2El=document.getElementById('dq2-val');
+  const dq1v=dq1?(dq1.tagName==='DIV'?getChips('dq1-val'):dq1.value):'';
+  const dq2v=dq2El?(dq2El.tagName==='DIV'?getChips('dq2-val'):dq2El.value):'';
+
+  if(!fname||!email||!date||!desc){
+    document.getElementById('errMsg').textContent='Please fill in all required fields (name, email, date, and description).';
+    document.getElementById('errMsg').classList.add('show');
+    return;
+  }
+
+  const btn=document.getElementById('subBtn');
+  btn.classList.add('loading');
+  btn.disabled=true;
+  btn.textContent='Sending...';
+  document.getElementById('errMsg').classList.remove('show');
+
+  const svcLabel=curSvc?curSvc.charAt(0).toUpperCase()+curSvc.slice(1):'Not specified';
+  const pkgLabel=curPkg?curPkg.n:'Not selected';
+  const pkgPrice=curPkg?curPkg.p:'—';
+  const estimateLabel=curEstimate>0?'$'+curEstimate.toLocaleString()+' (custom estimate)':pkgPrice;
+
+  const params={
+    client_name: fname+' '+lname,
+    client_email: email,
+    client_phone: phone||'Not provided',
+    service: svcLabel,
+    package: pkgLabel,
+    package_price: pkgPrice,
+    event_date: date,
+    event_location: loc||'Not specified',
+    description: desc,
+    deliverables: deliverables||'Not specified',
+    budget: budget||'Not specified',
+    source: source||'Not specified',
+    estimate: estimateLabel,
+    builder_breakdown: curBreakdown||'No custom estimate built',
+    dq1: dq1v||'—',
+    dq2: dq2v||'—',
+    to_email: 'contact@lenzfotos.com',
+    reply_to: email,
+  };
+
+  // Build calendar link with pre-filled description
+  const calDesc=encodeURIComponent(
+    `New inquiry from ${fname} ${lname}\n`+
+    `Service: ${svcLabel}\nPackage: ${pkgLabel}\n`+
+    `Date needed: ${date}\nLocation: ${loc||'TBD'}\n\n`+
+    `Event description: ${desc}\n\n`+
+    `Estimate: ${estimateLabel}\nPhone: ${phone||'N/A'}\nEmail: ${email}`
+  );
+  const calTitle=encodeURIComponent(`Lenz Fotos — ${svcLabel} consultation: ${fname} ${lname}`);
+  const calUrl=`https://calendar.app.google/jikDaNfukcaE9cHH7?title=${calTitle}&description=${calDesc}`;
+
+  try {
+    // Send to owner
+    await emailjs.send(EJS.serviceId, EJS.templateOwner, params);
+    // Send confirmation to client
+    await emailjs.send(EJS.serviceId, EJS.templateClient, {...params, client_name: fname});
+
+    // Show confirmation
+    document.getElementById('qForm').style.display='none';
+    const conf=document.getElementById('confirmScreen');
+    conf.classList.add('show');
+    document.getElementById('cc-name').textContent=fname+' '+lname;
+    document.getElementById('cc-email').textContent=email;
+    document.getElementById('cc-email2').textContent=email;
+    document.getElementById('cc-service').textContent=svcLabel;
+    document.getElementById('cc-package').textContent=pkgLabel;
+    document.getElementById('cc-date').textContent=date;
+    document.getElementById('cc-location').textContent=loc||'Not specified';
+    document.getElementById('cc-estimate').textContent=estimateLabel;
+    document.getElementById('calLink').href=calUrl;
+    setStep(5);
+    setTimeout(()=>document.getElementById('questionnaire').scrollIntoView({behavior:'smooth',block:'start'}),300);
+
+  } catch(err){
+    console.error('EmailJS error:',err);
+    document.getElementById('errMsg').textContent='Something went wrong. Please email us directly at contact@lenzfotos.com — we apologize for the inconvenience!';
+    document.getElementById('errMsg').classList.add('show');
+    btn.classList.remove('loading');
+    btn.disabled=false;
+    btn.textContent='Send my inquiry →';
+  }
+}
+
+function setStep(n){
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('p'+i);
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
+  }
+}
+
+/* ── REVEAL ── */
+function activateReveals(){
+  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('vis'));
+}
+try {
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('vis');});
+  },{threshold:0,rootMargin:'0px 0px 0px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  // Fallback: if nothing visible after 400ms, reveal everything
+  setTimeout(()=>{
+    const hidden=document.querySelectorAll('.reveal:not(.vis)');
+    if(hidden.length>0) activateReveals();
+  },400);
+} catch(e){ activateReveals(); }
+
+/* ── INIT ── */
+renderPkgs('events');
+renderDQ('events');
+renderBuilder('events');
+</script>
+</body>
+</html>
